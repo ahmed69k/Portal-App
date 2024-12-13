@@ -1,0 +1,45 @@
+﻿@model IEnumerable<WebApplication6.Models.User>
+
+@{
+    ViewData["Title"] = "Users";
+}
+
+<h2>Users</h2>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>Email</th>
+            <th>Role</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var user in Model)
+        {
+            <tr>
+                <td>@user.Name</td>
+                <td>@user.Email</td>
+                <td>@user.Role</td>
+                <td>
+                    <!-- Allow learners to see a delete button only for themselves -->
+                    @if (User.Identity.IsAuthenticated && User.Identity.Name == user.Email)
+                    {
+                        <form asp-action="Delete" asp-route-id="@user.Id" method="post" style="display:inline;">
+                            <button type="submit" class="btn btn-danger btn-sm">Delete My Account</button>
+                        </form>
+                    }
+
+                    <!-- Allow admins to delete any learner's account -->
+                    @if (User.IsInRole("Admin") && user.Role == "Learner")
+                    {
+                        <form asp-action="Delete" asp-route-id="@user.Id" method="post" style="display:inline;">
+                            <button type="submit" class="btn btn-danger btn-sm">Delete</button>
+                        </form>
+                    }
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

@@ -1,0 +1,18 @@
+﻿@model WebApplication6.Models.User
+@{
+    ViewData["Title"] = "Delete";
+}
+<h1>Delete Account</h1>
+<h3>Are you sure you want to delete your account?</h3>
+<hr />
+<dl class="row">
+    <dt class="col-sm-2">Email</dt>
+    <dd class="col-sm-10">@Model.Email</dd>
+    <dt class="col-sm-2">Name</dt>
+    <dd class="col-sm-10">@Model.Name</dd>
+</dl>
+
+<form asp-action="DeleteConfirmed" asp-route-id="@Model.Id" method="post">
+    <button type="submit" class="btn btn-danger">Confirm Delete</button>
+    <a asp-action="LearnerDetails" asp-route-id="@Model.Id" class="btn btn-secondary">Cancel</a>
+</form>
