@@ -14,7 +14,6 @@ public partial class Learner
     public string? Country { get; set; }
     public string? CulturalBackground { get; set; }
 
-    public int? UserId { get; set; } // Foreign key linking to the Users table
 
     public virtual User? User { get; set; } // Navigation property to the User table
 
