@@ -10,50 +10,19 @@
     <a asp-action="Create" class="btn btn-success btn-sm">Create New</a>
 </p>
 
-<table class="table">
-    <thead>
-        <tr>
-            <th>
-                @Html.DisplayNameFor(model => model.Title)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Description)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Criteria)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.DifficultyLevel)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.QuestId)
-            </th>
-
-            <th></th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach (var item in Model)
-        {
-            <tr>
-                <td>
-                    @Html.DisplayFor(modelItem => item.Title)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.Description)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.Criteria)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.DifficultyLevel)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.QuestId)
-                </td>
-
-                <td>
-                    <div class="d-flex gap-2">
+<div class="row row-cols-1 row-cols-md-3 g-4">
+    @foreach (var item in Model)
+    {
+        <div class="col">
+            <div class="card shadow-sm h-100">
+                <!-- h-100 ensures equal height for all cards -->
+                <div class="card-body d-flex flex-column">
+                    <h5 class="card-title">@item.Title</h5>
+                    <h6 class="card-subtitle mb-2 text-muted">@item.DifficultyLevel</h6>
+                    <p class="card-text">@item.Description</p>
+                    <p class="card-text"><strong>Criteria:</strong> @item.Criteria</p>
+                    <p class="card-text"><strong>Quest ID:</strong> @item.QuestId</p>
+                    <div class="mt-auto d-flex gap-2">
                         <a asp-action="Details" asp-route-id="@item.QuestId" class="btn btn-primary btn-sm">Details</a>
 
                         @if (User.IsInRole("Instructor"))
@@ -73,8 +42,8 @@
                             </form>
                         }
                     </div>
-                </td>
-            </tr>
-        }
-    </tbody>
-</table>
+                </div>
+            </div>
+        </div>
+    }
+</div>
