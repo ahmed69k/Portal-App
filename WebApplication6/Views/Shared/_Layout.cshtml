@@ -13,6 +13,26 @@
         body {
             padding-top: 56px;
         }
+
+        /* Make My Quests look like the other navbar items */
+        .nav-link.my-quests {
+            color: rgba(255, 255, 255, 0.6); /* Dim color when not hovered */
+            transition: color 0.3s;
+        }
+
+            .nav-link.my-quests:hover {
+                color: white; /* Light up color when hovered */
+            }
+
+        /* Make the logout button similar to other navbar items */
+        .nav-link.logout-btn {
+            color: rgba(255, 255, 255, 0.6); /* Dim color when not hovered */
+            transition: color 0.3s;
+        }
+
+            .nav-link.logout-btn:hover {
+                color: white; /* Light up color when hovered */
+            }
     </style>
 </head>
 <body>
@@ -20,10 +40,20 @@
     <header>
         <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
             <div class="container-fluid">
+                <!-- Title Link -->
                 <a class="navbar-brand" href="@Url.Action("Index", "Home")">My Application</a>
+
+                <!-- My Quests Link (Positioned Next to Title) -->
+                @if (User.Identity.IsAuthenticated)
+                {
+                    <a class="nav-link my-quests" href="@Url.Action("Index", "LearnersCollaborations")" style="display:inline-block; margin-left:20px;">My Quests</a>
+                }
+
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
                     <span class="navbar-toggler-icon"></span>
                 </button>
+
+                <!-- Navbar Items -->
                 <div class="collapse navbar-collapse" id="navbarNav">
                     <ul class="navbar-nav ms-auto">
                         <li class="nav-item">
@@ -39,7 +69,7 @@
                             <!-- Logout Form -->
                             <li class="nav-item">
                                 <form asp-action="Logout" asp-controller="Users" method="post" class="d-inline">
-                                    <button type="submit" class="nav-link btn btn-link text-light">Logout</button>
+                                    <button type="submit" class="nav-link btn btn-link logout-btn text-light">Logout</button>
                                 </form>
                             </li>
                         }
