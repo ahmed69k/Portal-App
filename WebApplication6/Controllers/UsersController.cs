@@ -121,11 +121,11 @@ namespace WebApplication6.Controllers
                     user.LearnerId = null; // Ensure the LearnerId is null
                 }
 
-
+                
                 // Add the new user to the database
                 _context.Add(user);
                 await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Details), new { id = user.Id });
+                return await Login(user);
             }
 
             return View(user);
