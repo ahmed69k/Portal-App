@@ -31,6 +31,7 @@ namespace WebApplication6.Controllers
         }
 
         // GET: Users/Details/5
+        // GET: Users/Details/5
         public async Task<IActionResult> Details(int id)
         {
             if (!User.Identity.IsAuthenticated)
@@ -41,9 +42,10 @@ namespace WebApplication6.Controllers
             var currentUserId = int.Parse(User.FindFirst("Id")?.Value ?? "0");
             var currentUserRole = User.FindFirst(ClaimTypes.Role)?.Value;
 
-            // Include the Learner details in the query to avoid lazy loading issues
+            // Include both Learner and Instructor details to avoid lazy loading issues
             var user = await _context.Users
-                .Include(u => u.Learner)  // Eagerly load the Learner details
+                .Include(u => u.Learner)
+                .Include(u => u.Instructor)
                 .FirstOrDefaultAsync(u => u.Id == id);
 
             if (user == null)
@@ -52,14 +54,12 @@ namespace WebApplication6.Controllers
             }
 
             // Authorization logic:
-            // - Learners can only access their own profiles
-            // - Admins can access any profile
-            // - Other users (e.g., instructors) can have custom logic if needed
             if (currentUserRole != "Admin" && currentUserId != user.Id)
             {
                 return Forbid(); // Deny access with HTTP 403
             }
 
+            // Return view based on the user's role
             return user.Role switch
             {
                 "Admin" => View("AdminDetails", user),
@@ -68,7 +68,6 @@ namespace WebApplication6.Controllers
                 _ => View("Details", user) // Fallback for undefined roles
             };
         }
-
 
 
         // GET: Users/Register
@@ -211,6 +210,87 @@ namespace WebApplication6.Controllers
         }
 
         // Remaining actions (Create/Edit/Delete)...
+
+
+        // GET: Users/Edit/5
+        // GET: Users/Edit/5
+        // GET: Users/Edit/5
+
+        public async Task<IActionResult> Edit(int id)
+        {
+            var user = await _context.Users
+                .Include(u => u.Learner)
+                .Include(u => u.Instructor)
+                .FirstOrDefaultAsync(u => u.Id == id);
+
+            if (user == null)
+            {
+                return NotFound();
+            }
+
+            if (user.Role == "Learner" && user.Learner != null)
+            {
+                return View("EditLearner", user.Learner);
+            }
+            else if (user.Role == "Instructor" && user.Instructor != null)
+            {
+                return View("EditInstructor", user.Instructor);
+            }
+
+            return BadRequest("Invalid user role or missing related data.");
+        }
+
+
+        // POST: Users/Edit/5
+        // POST: Users/Edit/5
+        // POST: Users/Edit/5
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Edit(int id, string role, Learner? learnerModel, Instructor? instructorModel)
+        {
+            if (role == "Learner" && learnerModel != null)
+            {
+                var learner = await _context.Learners.FirstOrDefaultAsync(l => l.LearnerId == learnerModel.LearnerId);
+
+                if (learner == null)
+                {
+                    return NotFound();
+                }
+
+                learner.FirstName = learnerModel.FirstName;
+                learner.LastName = learnerModel.LastName;
+                learner.Gender = learnerModel.Gender;
+                learner.BirthDate = learnerModel.BirthDate;
+                learner.Country = learnerModel.Country;
+                learner.CulturalBackground = learnerModel.CulturalBackground;
+
+                _context.Update(learner);
+            }
+            else if (role == "Instructor" && instructorModel != null)
+            {
+                var instructor = await _context.Instructors.FirstOrDefaultAsync(i => i.InstructorId == instructorModel.InstructorId);
+
+                if (instructor == null)
+                {
+                    return NotFound();
+                }
+
+                instructor.Name = instructorModel.Name;
+                instructor.LatestQualification = instructorModel.LatestQualification;
+                instructor.ExpertiseArea = instructorModel.ExpertiseArea;
+
+                _context.Update(instructor);
+            }
+            else
+            {
+                return BadRequest("Invalid role or missing data.");
+            }
+
+            await _context.SaveChangesAsync();
+            return RedirectToAction("Details", new { id = id });
+        }
+
+
 
         [HttpGet]
         [Route("Users/Delete")]

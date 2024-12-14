@@ -77,7 +77,7 @@ namespace WebApplication6.Controllers
             {
                 return NotFound();
             }
-            return View(learner);
+            return View(User);
         }
 
         // POST: Learners/Edit/5
@@ -112,7 +112,7 @@ namespace WebApplication6.Controllers
                 }
                 return RedirectToAction(nameof(Index));
             }
-            return View(learner);
+            return View(User);
         }
 
         // GET: Learners/Delete/5

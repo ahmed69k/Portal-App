@@ -1,0 +1,20 @@
+﻿@model WebApplication6.Models.Instructor
+
+<h2>Edit Instructor Information</h2>
+<form asp-action="Edit" method="post">
+    <input type="hidden" name="role" value="Instructor" />
+    <input type="hidden" asp-for="InstructorId" />
+    <div>
+        <label asp-for="Name"></label>
+        <input asp-for="Name" />
+    </div>
+    <div>
+        <label asp-for="LatestQualification"></label>
+        <input asp-for="LatestQualification" />
+    </div>
+    <div>
+        <label asp-for="ExpertiseArea"></label>
+        <input asp-for="ExpertiseArea" />
+    </div>
+    <button type="submit">Save</button>
+</form>

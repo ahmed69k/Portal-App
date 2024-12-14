@@ -1,0 +1,43 @@
+﻿@model WebApplication6.Models.Learner
+
+<h2>Edit Learner Information</h2>
+<form asp-action="Edit" method="post">
+    <input type="hidden" name="role" value="Learner" />
+    <input type="hidden" asp-for="LearnerId" />
+
+    <div>
+        <label asp-for="FirstName"></label>
+        <input asp-for="FirstName" />
+    </div>
+
+    <div>
+        <label asp-for="LastName"></label>
+        <input asp-for="LastName" />
+    </div>
+
+    <div>
+        <label asp-for="Gender"></label>
+        <select asp-for="Gender">
+            <option value="Male">Male</option>
+            <option value="Female">Female</option>
+            <option value="Other">Other</option>
+        </select>
+    </div>
+
+    <div>
+        <label asp-for="BirthDate"></label>
+        <input asp-for="BirthDate" type="date" />
+    </div>
+
+    <div>
+        <label asp-for="Country"></label>
+        <input asp-for="Country" />
+    </div>
+
+    <div>
+        <label asp-for="CulturalBackground"></label>
+        <input asp-for="CulturalBackground" />
+    </div>
+
+    <button type="submit">Save</button>
+</form>
