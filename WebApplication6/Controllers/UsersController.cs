@@ -31,7 +31,7 @@ namespace WebApplication6.Controllers
         }
 
         // GET: Users/Details/5
-        public IActionResult Details(int id)
+        public async Task<IActionResult> Details(int id)
         {
             if (!User.Identity.IsAuthenticated)
             {
@@ -41,7 +41,10 @@ namespace WebApplication6.Controllers
             var currentUserId = int.Parse(User.FindFirst("Id")?.Value ?? "0");
             var currentUserRole = User.FindFirst(ClaimTypes.Role)?.Value;
 
-            var user = _context.Users.Find(id);
+            // Include the Learner details in the query to avoid lazy loading issues
+            var user = await _context.Users
+                .Include(u => u.Learner)  // Eagerly load the Learner details
+                .FirstOrDefaultAsync(u => u.Id == id);
 
             if (user == null)
             {
@@ -67,6 +70,7 @@ namespace WebApplication6.Controllers
         }
 
 
+
         // GET: Users/Register
         public IActionResult Register()
         {
@@ -77,7 +81,7 @@ namespace WebApplication6.Controllers
         [HttpPost]
         
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Register([Bind("Email,Name,Role,PasswordHash,ProfilePicture")] User user, IFormFile? profilePicture)
+        public async Task<IActionResult> Register([Bind("Email,Name,Role,PasswordHash,ProfilePicture")] User user, IFormFile? profilePicture, int? learnerId, int? instructorId)
         {
             if (ModelState.IsValid)
             {
@@ -105,12 +109,33 @@ namespace WebApplication6.Controllers
                     user.ProfilePicture = ""; // Replace with an actual default image if needed
                 }
 
+                // Assign LearnerId or InstructorId based on the role
+                if (user.Role == "Learner" && learnerId.HasValue)
+                {
+                    user.LearnerId = learnerId;
+                    user.InstructorId = null; // Ensure the InstructorId is null
+                }
+                else if (user.Role == "Instructor" && instructorId.HasValue)
+                {
+                    user.InstructorId = instructorId;
+                    user.LearnerId = null; // Ensure the LearnerId is null
+                }
+                else
+                {
+                    // Add validation if the learnerId or instructorId is missing or incorrect
+                    ModelState.AddModelError(string.Empty, "Invalid learner or instructor ID.");
+                    return View(user);
+                }
+
+                // Add the new user to the database
                 _context.Add(user);
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Details), new { id = user.Id });
             }
+
             return View(user);
         }
+
 
 
 

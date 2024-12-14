@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Claims;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
@@ -21,9 +22,59 @@ namespace WebApplication6.Controllers
         // GET: LearnersCollaborations
         public async Task<IActionResult> Index()
         {
-            var fm2Context = _context.LearnersCollaborations.Include(l => l.Learner).Include(l => l.Quest);
-            return View(await fm2Context.ToListAsync());
+            if (!User.Identity.IsAuthenticated)
+            {
+                return RedirectToAction("Login", "Users");
+            }
+
+            var currentUserId = int.Parse(User.FindFirst("Id")?.Value ?? "0");
+            var currentUserRole = User.FindFirst(ClaimTypes.Role)?.Value;
+
+            // Fetch the current learner associated with the logged-in user
+            var user = await _context.Users.Include(u => u.Learner).FirstOrDefaultAsync(u => u.Id == currentUserId);
+
+            if (user == null || user.Learner == null || user.Role != "Learner")
+            {
+                return Forbid(); // Only learners should access this page
+            }
+
+            // Retrieve collaborations for the learner
+            var collaborations = await _context.LearnersCollaborations
+                .Where(lc => lc.LearnerId == user.LearnerId)
+                .ToListAsync();
+
+            // Retrieve quest data related to the collaborations (joining the Quest and Collaborative tables)
+            var questIds = collaborations.Select(lc => lc.QuestId).ToList();
+
+            var quests = await _context.Quests
+                .Where(q => questIds.Contains(q.QuestId))
+                .ToListAsync();
+
+            var collaboratives = await _context.Collaboratives
+                .Where(c => questIds.Contains(c.QuestId))
+                .ToListAsync();
+
+            // Combine the data into an anonymous object or a ViewModel (no new ViewModel class required)
+            var viewModel = collaborations.Select(lc => new
+            {
+                lc.LearnerId,
+                lc.QuestId,
+                lc.CompletionStatus,
+                Quest = quests.FirstOrDefault(q => q.QuestId == lc.QuestId),
+                Collaborative = collaboratives.FirstOrDefault(c => c.QuestId == lc.QuestId)
+            }).ToList();
+
+            return View(viewModel);
         }
+
+
+
+
+
+
+
+
+
 
         // GET: LearnersCollaborations/Details/5
         public async Task<IActionResult> Details(int? id)
