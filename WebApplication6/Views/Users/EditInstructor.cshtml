@@ -1,0 +1,34 @@
+﻿@model WebApplication6.Models.Instructor
+
+<h2 class="text-center">Edit Instructor Information</h2>
+
+<form asp-action="Edit" method="post" class="container">
+    <input type="hidden" name="role" value="Instructor" />
+    <input type="hidden" asp-for="InstructorId" />
+
+    <!-- Name Field -->
+    <div class="mb-3">
+        <label asp-for="Name" class="form-label">Name</label>
+        <input asp-for="Name" class="form-control" />
+        <span asp-validation-for="Name" class="text-danger"></span>
+    </div>
+
+    <!-- Latest Qualification Field -->
+    <div class="mb-3">
+        <label asp-for="LatestQualification" class="form-label">Latest Qualification</label>
+        <input asp-for="LatestQualification" class="form-control" />
+        <span asp-validation-for="LatestQualification" class="text-danger"></span>
+    </div>
+
+    <!-- Expertise Area Field -->
+    <div class="mb-3">
+        <label asp-for="ExpertiseArea" class="form-label">Expertise Area</label>
+        <input asp-for="ExpertiseArea" class="form-control" />
+        <span asp-validation-for="ExpertiseArea" class="text-danger"></span>
+    </div>
+
+    <!-- Submit Button -->
+    <div class="text-center">
+        <button type="submit" class="btn btn-primary">Save</button>
+    </div>
+</form>

@@ -26,5 +26,7 @@ namespace WebApplication6.Models
 
         [ForeignKey("InstructorId")]
         public virtual Instructor? Instructor { get; set; }
+       
+
     }
 }

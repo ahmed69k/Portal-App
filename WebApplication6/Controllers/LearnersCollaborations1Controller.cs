@@ -10,16 +10,16 @@ using WebApplication6.Models;
 
 namespace WebApplication6.Controllers
 {
-    public class LearnersCollaborationsController : Controller
+    public class LearnersCollaborations1Controller : Controller
     {
         private readonly Fm2Context _context;
 
-        public LearnersCollaborationsController(Fm2Context context)
+        public LearnersCollaborations1Controller(Fm2Context context)
         {
             _context = context;
         }
 
-        // GET: LearnersCollaborations
+        // GET: LearnersCollaborations1
         public async Task<IActionResult> Index()
         {
             if (!User.Identity.IsAuthenticated)
@@ -30,21 +30,13 @@ namespace WebApplication6.Controllers
             var currentUserId = int.Parse(User.FindFirst("Id")?.Value ?? "0");
             var currentUserRole = User.FindFirst(ClaimTypes.Role)?.Value;
 
-            // Fetch the current learner associated with the logged-in user
-            var user = await _context.Users.Include(u => u.Learner).FirstOrDefaultAsync(u => u.Id == currentUserId);
-
-            if (user == null || user.Learner == null || user.Role != "Learner")
-            {
-                return Forbid(); // Only learners should access this page
-            }
-
-            // Retrieve collaborations for the learner
+            // Fetch all collaborations for all learners
             var collaborations = await _context.LearnersCollaborations
-                .Where(lc => lc.LearnerId == user.LearnerId)
+                .Include(lc => lc.Learner)  // Optional: if you want to include learner details
                 .ToListAsync();
 
             // Retrieve quest data related to the collaborations (joining the Quest and Collaborative tables)
-            var questIds = collaborations.Select(lc => lc.QuestId).ToList();
+            var questIds = collaborations.Select(lc => lc.QuestId).Distinct().ToList();
 
             var quests = await _context.Quests
                 .Where(q => questIds.Contains(q.QuestId))
@@ -54,55 +46,29 @@ namespace WebApplication6.Controllers
                 .Where(c => questIds.Contains(c.QuestId))
                 .ToListAsync();
 
-            // Combine the data into an anonymous object or a ViewModel (no new ViewModel class required)
-            var viewModel = collaborations.Select(lc => new
-            {
-                lc.LearnerId,
-                lc.QuestId,
-                lc.CompletionStatus,
-                Quest = quests.FirstOrDefault(q => q.QuestId == lc.QuestId),
-                Collaborative = collaboratives.FirstOrDefault(c => c.QuestId == lc.QuestId)
-            }).ToList();
-
-            return View(viewModel);
-        }
-
-
-
-
-        public async Task<IActionResult> QuestMembers(int learnerId)
-        {
-            // Get the quest IDs the learner is part of
-            var learnerQuests = await _context.LearnersCollaborations
-                .Where(lc => lc.LearnerId == learnerId)
-                .Select(lc => lc.QuestId)
-                .Distinct()
+            // Retrieve users (learners) to get first and last names
+            var learnerIds = collaborations.Select(lc => lc.LearnerId).Distinct().ToList();
+            var learners = await _context.Learners
+                .Where(u => learnerIds.Contains(u.LearnerId))
+                .Select(u => new { u.LearnerId, u.FirstName, u.LastName })
                 .ToListAsync();
 
-            // Get all learners participating in those quests, excluding the current learner
-            var otherLearners = await _context.LearnersCollaborations
-                .Where(lc => learnerQuests.Contains(lc.QuestId) && lc.LearnerId != learnerId)
-                .Include(lc => lc.Learner) // Include related learner data
-                .Include(lc => lc.Quest)   // Include related quest data
-                .Select(lc => new
+            // Group collaborations by QuestId
+            var groupedCollaborations = collaborations
+                .GroupBy(lc => lc.QuestId)
+                .Select(group => new
                 {
-                    lc.LearnerId,
-                    FirstName = lc.Learner.FirstName,
-                    LastName = lc.Learner.LastName,
-                    lc.QuestId,
-                    QuestName = lc.Quest.Quest.Title, // Assuming "Title" is the quest name
-                    Deadline = lc.Quest.Deadline
-                })
-                .ToListAsync();
+                    Quest = quests.FirstOrDefault(q => q.QuestId == group.Key),
+                    Learners = group.Select(lc => new
+                    {
+                        LearnerId = lc.LearnerId,
+                        FirstName = learners.FirstOrDefault(u => u.LearnerId == lc.LearnerId)?.FirstName,
+                        LastName = learners.FirstOrDefault(u => u.LearnerId == lc.LearnerId)?.LastName
+                    }).ToList(),
+                    Collaborative = collaboratives.FirstOrDefault(c => c.QuestId == group.Key)
+                }).ToList();
 
-            // Check if there are any other learners
-            if (!otherLearners.Any())
-            {
-                return NotFound("No other learners are participating in the same quests as the specified learner.");
-            }
-
-            // Pass the data to the view
-            return View(otherLearners);
+            return View(groupedCollaborations);  // Pass grouped data to the view
         }
 
 
@@ -110,12 +76,7 @@ namespace WebApplication6.Controllers
 
 
 
-
-
-
-
-
-        // GET: LearnersCollaborations/Details/5
+        // GET: LearnersCollaborations1/Details/5
         public async Task<IActionResult> Details(int? id)
         {
             if (id == null)
@@ -135,7 +96,7 @@ namespace WebApplication6.Controllers
             return View(learnersCollaboration);
         }
 
-        // GET: LearnersCollaborations/Create
+        // GET: LearnersCollaborations1/Create
         public IActionResult Create()
         {
             ViewData["LearnerId"] = new SelectList(_context.Learners, "LearnerId", "LearnerId");
@@ -143,7 +104,7 @@ namespace WebApplication6.Controllers
             return View();
         }
 
-        // POST: LearnersCollaborations/Create
+        // POST: LearnersCollaborations1/Create
         // To protect from overposting attacks, enable the specific properties you want to bind to.
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
@@ -161,7 +122,7 @@ namespace WebApplication6.Controllers
             return View(learnersCollaboration);
         }
 
-        // GET: LearnersCollaborations/Edit/5
+        // GET: LearnersCollaborations1/Edit/5
         public async Task<IActionResult> Edit(int? id)
         {
             if (id == null)
@@ -179,7 +140,7 @@ namespace WebApplication6.Controllers
             return View(learnersCollaboration);
         }
 
-        // POST: LearnersCollaborations/Edit/5
+        // POST: LearnersCollaborations1/Edit/5
         // To protect from overposting attacks, enable the specific properties you want to bind to.
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
@@ -216,62 +177,44 @@ namespace WebApplication6.Controllers
             return View(learnersCollaboration);
         }
 
-        public async Task<IActionResult> Delete(int learnerId, int questId)
+        // GET: LearnersCollaborations1/Delete/5
+        public async Task<IActionResult> Delete(int? id)
         {
-            // Find the LearnersCollaboration record for the specified learner and quest
-            var learnersCollaboration = await _context.LearnersCollaborations
-                .FirstOrDefaultAsync(lc => lc.LearnerId == learnerId && lc.QuestId == questId);
+            if (id == null)
+            {
+                return NotFound();
+            }
 
-            // If the collaboration doesn't exist, return a NotFound response
+            var learnersCollaboration = await _context.LearnersCollaborations
+                .Include(l => l.Learner)
+                .Include(l => l.Quest)
+                .FirstOrDefaultAsync(m => m.LearnerId == id);
             if (learnersCollaboration == null)
             {
                 return NotFound();
             }
 
-            // Remove the found record from the database
-            _context.LearnersCollaborations.Remove(learnersCollaboration);
-            await _context.SaveChangesAsync();
-
-            // Redirect to a relevant action (e.g., the Index action for LearnersCollaborations)
-            return RedirectToAction("Index");
+            return View(learnersCollaboration);
         }
 
-
+        // POST: LearnersCollaborations1/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> DeleteConfirmed(int learnerId, int questId)
+        public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            // Find the collaboration to be deleted
-            var learnersCollaboration = await _context.LearnersCollaborations
-                .FirstOrDefaultAsync(lc => lc.LearnerId == learnerId && lc.QuestId == questId);
-
+            var learnersCollaboration = await _context.LearnersCollaborations.FindAsync(id);
             if (learnersCollaboration != null)
             {
-                // Remove the collaboration from the database
                 _context.LearnersCollaborations.Remove(learnersCollaboration);
-                await _context.SaveChangesAsync();
             }
 
-            // Redirect back to the index after deletion
-            return RedirectToAction("Index");
+            await _context.SaveChangesAsync();
+            return RedirectToAction(nameof(Index));
         }
-
 
         private bool LearnersCollaborationExists(int id)
         {
             return _context.LearnersCollaborations.Any(e => e.LearnerId == id);
         }
-
-
-        // Existing methods...
-
-        // New method to get quest members
-
-
-
     }
 }
-
-    
-
-

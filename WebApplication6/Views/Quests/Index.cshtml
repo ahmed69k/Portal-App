@@ -5,10 +5,11 @@
 }
 
 <h1>Quests</h1>
-
-<p>
+@if (User.IsInRole("Admin") || User.IsInRole("Instructor"))
+{
+    <p>
     <a asp-action="Create" class="btn btn-success btn-sm">Create New</a>
-</p>
+</p>}
 
 <div class="row row-cols-1 row-cols-md-3 g-4">
     @foreach (var item in Model)
@@ -28,6 +29,7 @@
                         @if (User.IsInRole("Instructor"))
                         {
                             <a asp-action="Edit" asp-route-id="@item.QuestId" class="btn btn-warning btn-sm">Edit</a>
+                            <a asp-action="SetDeadline" asp-route-id="@item.QuestId" class="btn btn-info btn-sm">Add Deadline</a>
                         }
 
                         @if (User.IsInRole("Admin") || User.IsInRole("Instructor"))

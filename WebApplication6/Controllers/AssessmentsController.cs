@@ -9,22 +9,23 @@ using WebApplication6.Models;
 
 namespace WebApplication6.Controllers
 {
-    public class LearnersController : Controller
+    public class AssessmentsController : Controller
     {
         private readonly Fm2Context _context;
 
-        public LearnersController(Fm2Context context)
+        public AssessmentsController(Fm2Context context)
         {
             _context = context;
         }
 
-        // GET: Learners
+        // GET: Assessments
         public async Task<IActionResult> Index()
         {
-            return View(await _context.Learners.ToListAsync());
+            var fm2Context = _context.Assessments.Include(a => a.Module);
+            return View(await fm2Context.ToListAsync());
         }
 
-        // GET: Learners/Details/5
+        // GET: Assessments/Details/5
         public async Task<IActionResult> Details(int? id)
         {
             if (id == null)
@@ -32,39 +33,42 @@ namespace WebApplication6.Controllers
                 return NotFound();
             }
 
-            var learner = await _context.Learners
-                .FirstOrDefaultAsync(m => m.LearnerId == id);
-            if (learner == null)
+            var assessment = await _context.Assessments
+                .Include(a => a.Module)
+                .FirstOrDefaultAsync(m => m.Id == id);
+            if (assessment == null)
             {
                 return NotFound();
             }
 
-            return View(learner);
+            return View(assessment);
         }
 
-        // GET: Learners/Create
+        // GET: Assessments/Create
         public IActionResult Create()
         {
+            ViewData["ModuleId"] = new SelectList(_context.Modules, "ModuleId", "ModuleId");
             return View();
         }
 
-        // POST: Learners/Create
+        // POST: Assessments/Create
         // To protect from overposting attacks, enable the specific properties you want to bind to.
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("LearnerId,FirstName,LastName,Gender,BirthDate,Country,CulturalBackground")] Learner learner)
+        public async Task<IActionResult> Create([Bind("Id,ModuleId,CourseId,Type,TotalMarks,PassingMarks,Criteria,Weightage,Description,Title")] Assessment assessment)
         {
             if (ModelState.IsValid)
             {
-                _context.Add(learner);
+                _context.Add(assessment);
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
-            return View(learner);
+            ViewData["ModuleId"] = new SelectList(_context.Modules, "ModuleId", "ModuleId", assessment.ModuleId);
+            return View(assessment);
         }
 
-        // GET: Learners/Edit/5
+        // GET: Assessments/Edit/5
         public async Task<IActionResult> Edit(int? id)
         {
             if (id == null)
@@ -72,22 +76,23 @@ namespace WebApplication6.Controllers
                 return NotFound();
             }
 
-            var learner = await _context.Learners.FindAsync(id);
-            if (learner == null)
+            var assessment = await _context.Assessments.FindAsync(id);
+            if (assessment == null)
             {
                 return NotFound();
             }
-            return View(User);
+            ViewData["ModuleId"] = new SelectList(_context.Modules, "ModuleId", "ModuleId", assessment.ModuleId);
+            return View(assessment);
         }
 
-        // POST: Learners/Edit/5
+        // POST: Assessments/Edit/5
         // To protect from overposting attacks, enable the specific properties you want to bind to.
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("LearnerId,FirstName,LastName,Gender,BirthDate,Country,CulturalBackground")] Learner learner)
+        public async Task<IActionResult> Edit(int id, [Bind("Id,ModuleId,CourseId,Type,TotalMarks,PassingMarks,Criteria,Weightage,Description,Title")] Assessment assessment)
         {
-            if (id != learner.LearnerId)
+            if (id != assessment.Id)
             {
                 return NotFound();
             }
@@ -96,12 +101,12 @@ namespace WebApplication6.Controllers
             {
                 try
                 {
-                    _context.Update(learner);
+                    _context.Update(assessment);
                     await _context.SaveChangesAsync();
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (!LearnerExists(learner.LearnerId))
+                    if (!AssessmentExists(assessment.Id))
                     {
                         return NotFound();
                     }
@@ -112,10 +117,11 @@ namespace WebApplication6.Controllers
                 }
                 return RedirectToAction(nameof(Index));
             }
-            return View(User);
+            ViewData["ModuleId"] = new SelectList(_context.Modules, "ModuleId", "ModuleId", assessment.ModuleId);
+            return View(assessment);
         }
 
-        // GET: Learners/Delete/5
+        // GET: Assessments/Delete/5
         public async Task<IActionResult> Delete(int? id)
         {
             if (id == null)
@@ -123,34 +129,35 @@ namespace WebApplication6.Controllers
                 return NotFound();
             }
 
-            var learner = await _context.Learners
-                .FirstOrDefaultAsync(m => m.LearnerId == id);
-            if (learner == null)
+            var assessment = await _context.Assessments
+                .Include(a => a.Module)
+                .FirstOrDefaultAsync(m => m.Id == id);
+            if (assessment == null)
             {
                 return NotFound();
             }
 
-            return View(learner);
+            return View(assessment);
         }
 
-        // POST: Learners/Delete/5
+        // POST: Assessments/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var learner = await _context.Learners.FindAsync(id);
-            if (learner != null)
+            var assessment = await _context.Assessments.FindAsync(id);
+            if (assessment != null)
             {
-                _context.Learners.Remove(learner);
+                _context.Assessments.Remove(assessment);
             }
 
             await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
         }
 
-        private bool LearnerExists(int id)
+        private bool AssessmentExists(int id)
         {
-            return _context.Learners.Any(e => e.LearnerId == id);
+            return _context.Assessments.Any(e => e.Id == id);
         }
     }
 }
