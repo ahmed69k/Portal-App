@@ -70,6 +70,45 @@ namespace WebApplication6.Controllers
 
 
 
+        public async Task<IActionResult> QuestMembers(int learnerId)
+        {
+            // Get the quest IDs the learner is part of
+            var learnerQuests = await _context.LearnersCollaborations
+                .Where(lc => lc.LearnerId == learnerId)
+                .Select(lc => lc.QuestId)
+                .Distinct()
+                .ToListAsync();
+
+            // Get all learners participating in those quests, excluding the current learner
+            var otherLearners = await _context.LearnersCollaborations
+                .Where(lc => learnerQuests.Contains(lc.QuestId) && lc.LearnerId != learnerId)
+                .Include(lc => lc.Learner) // Include related learner data
+                .Include(lc => lc.Quest)   // Include related quest data
+                .Select(lc => new
+                {
+                    lc.LearnerId,
+                    FirstName = lc.Learner.FirstName,
+                    LastName = lc.Learner.LastName,
+                    lc.QuestId,
+                    QuestName = lc.Quest.Quest.Title, // Assuming "Title" is the quest name
+                    Deadline = lc.Quest.Deadline
+                })
+                .ToListAsync();
+
+            // Check if there are any other learners
+            if (!otherLearners.Any())
+            {
+                return NotFound("No other learners are participating in the same quests as the specified learner.");
+            }
+
+            // Pass the data to the view
+            return View(otherLearners);
+        }
+
+
+
+
+
 
 
 
@@ -177,40 +216,46 @@ namespace WebApplication6.Controllers
             return View(learnersCollaboration);
         }
 
-        // GET: LearnersCollaborations/Delete/5
-        public async Task<IActionResult> Delete(int? id)
+        public async Task<IActionResult> Delete(int learnerId, int questId)
         {
-            if (id == null)
-            {
-                return NotFound();
-            }
-
+            // Find the LearnersCollaboration record for the specified learner and quest
             var learnersCollaboration = await _context.LearnersCollaborations
-                .Include(l => l.Learner)
-                .Include(l => l.Quest)
-                .FirstOrDefaultAsync(m => m.LearnerId == id);
+                .FirstOrDefaultAsync(lc => lc.LearnerId == learnerId && lc.QuestId == questId);
+
+            // If the collaboration doesn't exist, return a NotFound response
             if (learnersCollaboration == null)
             {
                 return NotFound();
             }
 
-            return View(learnersCollaboration);
+            // Remove the found record from the database
+            _context.LearnersCollaborations.Remove(learnersCollaboration);
+            await _context.SaveChangesAsync();
+
+            // Redirect to a relevant action (e.g., the Index action for LearnersCollaborations)
+            return RedirectToAction("Index");
         }
 
-        // POST: LearnersCollaborations/Delete/5
+
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> DeleteConfirmed(int id)
+        public async Task<IActionResult> DeleteConfirmed(int learnerId, int questId)
         {
-            var learnersCollaboration = await _context.LearnersCollaborations.FindAsync(id);
+            // Find the collaboration to be deleted
+            var learnersCollaboration = await _context.LearnersCollaborations
+                .FirstOrDefaultAsync(lc => lc.LearnerId == learnerId && lc.QuestId == questId);
+
             if (learnersCollaboration != null)
             {
+                // Remove the collaboration from the database
                 _context.LearnersCollaborations.Remove(learnersCollaboration);
+                await _context.SaveChangesAsync();
             }
 
-            await _context.SaveChangesAsync();
-            return RedirectToAction(nameof(Index));
+            // Redirect back to the index after deletion
+            return RedirectToAction("Index");
         }
+
 
         private bool LearnersCollaborationExists(int id)
         {

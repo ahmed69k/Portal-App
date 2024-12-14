@@ -1,22 +1,42 @@
 ﻿@model IEnumerable<dynamic>
 
 <h2>Quest Members</h2>
-<table class="table">
-    <thead>
-        <tr>
-            <th>Member ID</th>
-            <th>Quest ID</th>
-            <th>Deadline</th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach (var member in Model)
-        {
+
+@if (!Model.Any())
+{
+    <p class="text-danger">No other learners are participating in the same quests as the specified learner.</p>
+}
+else
+{
+    <table class="table table-striped">
+        <thead class="thead-dark">
             <tr>
-                <td>@member.MembersParticipating</td>
-                <td>@member.QuestId</td>
-                <td>@member.Deadline</td>
+                <th>Learner ID</th>
+                <th>First Name</th>
+                <th>Last Name</th>
+                <th>Quest ID</th>
+                <th>Quest Name</th>
+                <th>Deadline</th>
             </tr>
-        }
-    </tbody>
-</table>
+        </thead>
+        <tbody>
+            @foreach (var member in Model)
+            {
+                <tr>
+                    <td>@member.LearnerId</td>
+                    <td>@member.FirstName</td>
+                    <td>@member.LastName</td>
+                    <td>@member.QuestId</td>
+                    <td>@member.QuestName</td>
+                    <td>@(member.Deadline != null ? member.Deadline.ToString("yyyy-MM-dd HH:mm") : "No Deadline")</td>
+                </tr>
+            }
+
+
+
+        </tbody>
+    </table>
+    <div class="mt-4">
+        <a href="@Url.Action("Index", "LearnersCollaborations")" class="btn btn-primary">Back to My Quests</a>
+    </div>
+}

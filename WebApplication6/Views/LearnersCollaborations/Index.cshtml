@@ -1,4 +1,4 @@
-﻿@model IEnumerable<dynamic> 
+﻿@model IEnumerable<dynamic>
 
 @{
     ViewData["Title"] = "My Quests";
@@ -6,6 +6,13 @@
 
 <h1>My Quests</h1>
 
+<!-- Display the Quest Members button once under the title -->
+<div class="mb-4">
+    <form asp-action="QuestMembers" asp-route-learnerId="@Model.FirstOrDefault()?.LearnerId"
+          asp-route-questId="@Model.FirstOrDefault()?.QuestId" method="post" style="display:inline;">
+        <button type="submit" class="btn btn-primary btn-sm">Quest Members</button>
+    </form>
+</div>
 
 <div class="row row-cols-1 row-cols-md-3 g-4">
     @foreach (var item in Model)
@@ -22,11 +29,10 @@
                     <p class="card-text"><strong>Quest ID:</strong> @item.QuestId</p>
                     <p class="card-text"><strong>Deadline:</strong> @item.Collaborative?.Deadline?.ToString("yyyy-MM-dd HH:mm")</p>
                     <div class="mt-auto d-flex gap-2">
+                        <form asp-action="Delete" asp-route-learnerId="@item.LearnerId" asp-route-questId="@item.QuestId" method="post" style="display:inline;">
+                            <button type="submit" class="btn btn-danger btn-sm">Leave</button>
+                        </form>
 
-                            <form asp-action="Leave" asp-route-id="@item.QuestId" method="post" style="display:inline;">
-                                <button type="submit" class="btn btn-danger btn-sm">Leave</button>
-                            </form>
-                        
                     </div>
                 </div>
             </div>
