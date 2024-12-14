@@ -1,48 +1,91 @@
 ﻿@model WebApplication6.Models.User
 
 @{
-    ViewData["Title"] = "LearnerDetails";
+    ViewData["Title"] = "Learner Details";
 }
 
-<h1>Learner Profile</h1>
-<h2>@Model.Name</h2>
-<hr />
-<dl class="row">
-    <dt class="col-sm-2">Email</dt>
-    <dd class="col-sm-10">@Model.Email</dd>
-    <dt class="col-sm-2">Role</dt>
-    <dd class="col-sm-10">@Model.Role</dd>
-</dl>
+<div class="container">
+    <h1 class="text-center">Learner Profile</h1>
 
-<div>
-    <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-primary">Edit Profile</a>
+    <div class="row justify-content-center">
+        <!-- User Info -->
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    User Info
+                </div>
+                <div class="card-body">
+                    <dl class="row">
+                        <dt class="col-sm-4">Email</dt>
+                        <dd class="col-sm-8">@Model.Email</dd>
 
-    <!-- Delete Account Button -->
+                        <dt class="col-sm-4">Role</dt>
+                        <dd class="col-sm-8">@Model.Role</dd>
+                    </dl>
+                </div>
+            </div>
+        </div>
 
+        <!-- Profile Picture (centered and larger) -->
+        <div class="col-md-4">
+            <!-- Changed to col-md-4 for wider space -->
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    Profile Picture
+                </div>
+                <div class="card-body text-center">
+                    @if (!string.IsNullOrEmpty(Model.ProfilePicture))
+                    {
+                        <img src="@Model.ProfilePicture" alt="Profile Picture" class="img-fluid" style="width: 100%; max-width: 300px; height: auto;">
+                    }
+                    else
+                    {
+                        <p>No profile picture available.</p>
+                    }
+                </div>
+            </div>
+        </div>
 
-    <div>
-        <a asp-action="Delete" asp-route-id="@Model.Id" class="btn btn-danger">Delete Account</a>
+        <!-- Learner Info -->
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    Learner Info
+                </div>
+                <div class="card-body">
+                    @if (Model.Learner != null)
+                    {
+                        <dl class="row">
+                            <dt class="col-sm-4">First Name</dt>
+                            <dd class="col-sm-8">@Model.Learner.FirstName</dd>
+
+                            <dt class="col-sm-4">Last Name</dt>
+                            <dd class="col-sm-8">@Model.Learner.LastName</dd>
+
+                            <dt class="col-sm-4">Gender</dt>
+                            <dd class="col-sm-8">@Model.Learner.Gender</dd>
+
+                            <dt class="col-sm-4">Birth Date</dt>
+                            <dd class="col-sm-8">@Model.Learner.BirthDate?.ToShortDateString()</dd>
+
+                            <dt class="col-sm-4">Country</dt>
+                            <dd class="col-sm-8">@Model.Learner.Country</dd>
+
+                            <dt class="col-sm-4">Cultural Background</dt>
+                            <dd class="col-sm-8">@Model.Learner.CulturalBackground</dd>
+                        </dl>
+                    }
+                    else
+                    {
+                        <p>No learner information available.</p>
+                    }
+                </div>
+            </div>
+        </div>
     </div>
 
-    @if (User.Identity.IsAuthenticated)
-    {
-        <form asp-action="RemovePersonalization" method="post" style="margin-top: 10px;" onsubmit="return confirm('Are you sure you want to remove your personalization?');">
-            <input type="hidden" name="id" value="@User.FindFirst("Id")?.Value" />
-            <button type="submit" class="btn btn-warning">Remove My Personalization</button>
-        </form>
-    }
-    @if (ViewData["SuccessMessage"] != null)
-    {
-        <div class="alert alert-success" role="alert">
-            @ViewData["SuccessMessage"]
-        </div>
-    }
-
-
-
-
-  
-
-
-
-
+    <div class="mt-4 text-center">
+        <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-primary btn-lg">Edit Profile</a>
+        <a asp-action="Delete" asp-route-id="@Model.Id" class="btn btn-danger btn-lg">Delete Account</a>
+    </div>
+</div>

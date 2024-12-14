@@ -15,21 +15,60 @@
     </div>
     <div class="form-group">
         <label asp-for="Role"></label>
-        <select asp-for="Role" class="form-control">
+        <select asp-for="Role" class="form-control" id="roleSelect" onchange="toggleIdInput()">
+            <option value="" disabled selected>Please select role</option> <!-- Default option -->
             <option value="Learner">Learner</option>
             <option value="Instructor">Instructor</option>
             <option value="Admin">Admin</option>
         </select>
         <span asp-validation-for="Role" class="text-danger"></span>
     </div>
+
+    <!-- Conditional input for LearnerId or InstructorId -->
+    <div class="form-group" id="idInput" style="display:none;">
+        <label id="idLabel" for="Id"></label>
+        <input asp-for="LearnerId" id="learnerId" class="form-control" />
+        <input asp-for="InstructorId" id="instructorId" class="form-control" style="display:none;" />
+        <span asp-validation-for="LearnerId" class="text-danger"></span>
+        <span asp-validation-for="InstructorId" class="text-danger"></span>
+    </div>
+
     <div class="form-group">
         <label asp-for="PasswordHash"></label>
         <input asp-for="PasswordHash" class="form-control" type="password" />
         <span asp-validation-for="PasswordHash" class="text-danger"></span>
     </div>
+
     <div class="form-group">
         <label for="ProfilePicture">Profile Picture</label>
         <input type="file" name="ProfilePicture" class="form-control" />
     </div>
+
     <button type="submit" class="btn btn-primary">Register</button>
 </form>
+
+<script>
+    // JavaScript to toggle the LearnerId/InstructorId input visibility based on the selected role
+    function toggleIdInput() {
+        var role = document.getElementById('roleSelect').value;
+        var learnerIdInput = document.getElementById('learnerId');
+        var instructorIdInput = document.getElementById('instructorId');
+        var idLabel = document.getElementById('idLabel');
+        var idInputContainer = document.getElementById('idInput');
+
+        if (role === 'Learner') {
+            idLabel.innerHTML = 'Learner ID';
+            learnerIdInput.style.display = 'block';
+            instructorIdInput.style.display = 'none';
+        } else if (role === 'Instructor') {
+            idLabel.innerHTML = 'Instructor ID';
+            instructorIdInput.style.display = 'block';
+            learnerIdInput.style.display = 'none';
+        } else {
+            idInputContainer.style.display = 'none';  // Hide the input field for Admin
+            return;
+        }
+
+        idInputContainer.style.display = 'block';  // Ensure the input container is visible
+    }
+</script>

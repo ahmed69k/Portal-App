@@ -31,7 +31,7 @@ namespace WebApplication6.Controllers
         }
 
         // GET: Users/Details/5
-        public IActionResult Details(int id)
+        public async Task<IActionResult> Details(int id)
         {
             if (!User.Identity.IsAuthenticated)
             {
@@ -41,7 +41,10 @@ namespace WebApplication6.Controllers
             var currentUserId = int.Parse(User.FindFirst("Id")?.Value ?? "0");
             var currentUserRole = User.FindFirst(ClaimTypes.Role)?.Value;
 
-            var user = _context.Users.Find(id);
+            // Include the Learner details in the query to avoid lazy loading issues
+            var user = await _context.Users
+                .Include(u => u.Learner)  // Eagerly load the Learner details
+                .FirstOrDefaultAsync(u => u.Id == id);
 
             if (user == null)
             {
@@ -67,6 +70,7 @@ namespace WebApplication6.Controllers
         }
 
 
+
         // GET: Users/Register
         public IActionResult Register()
         {
@@ -77,7 +81,7 @@ namespace WebApplication6.Controllers
         [HttpPost]
         
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Register([Bind("Email,Name,Role,PasswordHash,ProfilePicture")] User user, IFormFile? profilePicture)
+        public async Task<IActionResult> Register([Bind("Email,Name,Role,PasswordHash,ProfilePicture")] User user, IFormFile? profilePicture, int? learnerId, int? instructorId)
         {
             if (ModelState.IsValid)
             {
@@ -105,12 +109,163 @@ namespace WebApplication6.Controllers
                     user.ProfilePicture = ""; // Replace with an actual default image if needed
                 }
 
+                // Assign LearnerId or InstructorId based on the role
+                if (user.Role == "Learner" && learnerId.HasValue)
+                {
+                    user.LearnerId = learnerId;
+                    user.InstructorId = null; // Ensure the InstructorId is null
+                }
+                else if (user.Role == "Instructor" && instructorId.HasValue)
+                {
+                    user.InstructorId = instructorId;
+                    user.LearnerId = null; // Ensure the LearnerId is null
+                }
+
+                
+                // Add the new user to the database
                 _context.Add(user);
                 await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Details), new { id = user.Id });
+                return await Login(user);
+            }
+
+            return View(user);
+        }
+
+        public async Task<IActionResult> Edit(int id)
+        {
+            var user = await _context.Users.FindAsync(id);
+            if (user == null)
+            {
+                return NotFound();
             }
             return View(user);
         }
+
+        // Edit POST action (saves changes to the user)
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Edit(int id, [Bind("Id,Email,Name,Role,PasswordHash,ProfilePicture")] User user, IFormFile? profilePicture)
+        {
+            if (id != user.Id)
+            {
+                return NotFound();
+            }
+
+            if (ModelState.IsValid)
+            {
+                try
+                {
+                    var existingUser = await _context.Users.FindAsync(id);
+                    if (existingUser == null)
+                    {
+                        return NotFound();
+                    }
+
+                    // Update user properties that can be modified
+                    existingUser.Name = user.Name;
+                    existingUser.Email = user.Email;
+                    existingUser.Role = user.Role;
+                    existingUser.PasswordHash = user.PasswordHash; // Ensure to hash the password before saving in real scenarios
+
+                    // Handle profile picture upload
+                    if (profilePicture != null && profilePicture.Length > 0)
+                    {
+                        // Generate a unique file name to avoid conflicts
+                        string fileName = Guid.NewGuid().ToString() + Path.GetExtension(profilePicture.FileName);
+                        string filePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "uploads", fileName);
+
+                        // Ensure the uploads directory exists
+                        var uploadDirectory = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "uploads");
+                        if (!Directory.Exists(uploadDirectory))
+                        {
+                            Directory.CreateDirectory(uploadDirectory);
+                        }
+
+                        // Save the file to the server
+                        using (var stream = new FileStream(filePath, FileMode.Create))
+                        {
+                            await profilePicture.CopyToAsync(stream);
+                        }
+
+                        // Update the ProfilePicture property to store the relative path
+                        existingUser.ProfilePicture = "/uploads/" + fileName;
+                    }
+                    else
+                    {
+                        // If no new picture is uploaded, retain the existing profile picture
+                        existingUser.ProfilePicture = existingUser.ProfilePicture ?? "/default-profile-picture.jpg"; // optional default profile picture
+                    }
+
+                    _context.Update(existingUser);
+                    await _context.SaveChangesAsync();
+                }
+                catch (DbUpdateConcurrencyException)
+                {
+                    if (!UserExists(user.Id))
+                    {
+                        return NotFound();
+                    }
+                    else
+                    {
+                        throw;
+                    }
+                }
+                return RedirectToAction("Details", new { id = user.Id });
+            }
+
+            return View(user);
+        }
+
+
+        [HttpGet]
+        public IActionResult AddProfilePicture()
+        {
+            return View();
+        }
+
+
+        [HttpPost]
+        public async Task<IActionResult> AddProfilePicture(IFormFile profilePicture)
+        {
+            if (profilePicture == null || profilePicture.Length == 0)
+            {
+                ModelState.AddModelError("", "Please select a profile picture.");
+                return View();
+            }
+
+            // Ensure the upload path exists
+            string uploadPath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "uploads");
+            if (!Directory.Exists(uploadPath))
+            {
+                Directory.CreateDirectory(uploadPath);
+            }
+
+            // Generate a unique filename to avoid conflicts
+            string fileName = Guid.NewGuid().ToString() + Path.GetExtension(profilePicture.FileName);
+            string filePath = Path.Combine(uploadPath, fileName);
+
+            // Save the file to the server
+            using (var stream = new FileStream(filePath, FileMode.Create))
+            {
+                await profilePicture.CopyToAsync(stream);
+            }
+
+            // Assuming the user is logged in, update the user's profile picture
+            var user = await _context.Users.FirstOrDefaultAsync(u => u.Name == User.Identity.Name);
+            if (user == null)
+            {
+                return NotFound();
+            }
+
+            // Update the user's profile picture URL
+            user.ProfilePicture = "/uploads/" + fileName;
+            _context.Update(user);
+            await _context.SaveChangesAsync();
+
+            // Redirect to the profile page after uploading the picture
+            return View(user);
+        }
+
 
 
 
@@ -213,6 +368,8 @@ namespace WebApplication6.Controllers
 
             return View(user);
         }
+
+
 
         [HttpPost]
         [ValidateAntiForgeryToken]
