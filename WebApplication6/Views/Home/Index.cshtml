@@ -3,11 +3,12 @@
 }
 
 <div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+    <h1 class="display-4">Hello<strong> @User.Identity.Name</strong> </h1>
 </div>
+
 @if (User.Identity.IsAuthenticated)
 {
-    <p>
-    <a asp-controller="Quests" asp-action="Index" class="btn btn-secondary">Quests</a>
-</p>}
+    <p class="mt-5">
+        <a asp-controller="Quests" asp-action="Index" class="btn btn-primary btn-lg">Quests</a>
+    </p>
+}

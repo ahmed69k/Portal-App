@@ -1,33 +1,103 @@
 ﻿@model WebApplication6.Models.User
 
-<h1>Admin Profile</h1>
-<h2>@Model.Name</h2>
-<hr />
-<dl class="row">
-    <dt class="col-sm-2">Email</dt>
-    <dd class="col-sm-10">@Model.Email</dd>
-    <dt class="col-sm-2">Role</dt>
-    <dd class="col-sm-10">@Model.Role</dd>
-</dl>
+@{
+    ViewData["Title"] = "Admin Profile";
+}
 
-<div>
-    <a asp-controller="Users1" asp-action="Index" class="btn btn-primary">Manage Users</a>
-    <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-secondary">Edit Profile</a>
+<div class="container">
+    <h1 class="text-center">Admin Profile</h1>
+
+    <div class="row justify-content-center">
+        <!-- Admin Info -->
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    Admin Info
+                </div>
+                <div class="card-body">
+                    <dl class="row">
+                        <dt class="col-sm-4">Username</dt>
+                        <dd class="col-sm-8">@Model.Name</dd>
+                        <dt class="col-sm-4">Email</dt>
+                        <dd class="col-sm-8">@Model.Email</dd>
+
+                        <dt class="col-sm-4">Role</dt>
+                        <dd class="col-sm-8">@Model.Role</dd>
+                    </dl>
+                </div>
+            </div>
+        </div>
+
+        <!-- Admin Profile Picture (optional) -->
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    Profile Picture
+                </div>
+                <div class="card-body text-center">
+                    @if (!string.IsNullOrEmpty(Model.ProfilePicture))
+                    {
+                        <img src="@Model.ProfilePicture" alt="Profile Picture" class="img-fluid" style="width: 100%; max-width: 300px; height: auto;">
+                    }
+                    else
+                    {
+                        <p>No profile picture available.</p>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add Profile Picture Button (only visible if no profile picture) -->
+    <div class="mt-4 text-center">
+        @if (string.IsNullOrEmpty(Model.ProfilePicture))
+        {
+            <form asp-controller="Users" asp-action="AddProfilePicture" method="post" enctype="multipart/form-data" class="mt-4">
+                <div class="form-group">
+                    <!-- Initially hidden file input field -->
+                    <input type="file" class="form-control" id="profilePicture" name="profilePicture" accept="image/*" style="display: none;" />
+                </div>
+                <button type="button" class="btn btn-secondary" id="uploadButton">Add Profile Picture</button> <!-- Button to trigger file input visibility -->
+                <button type="submit" class="btn btn-primary mt-3" id="submitButton" style="display: none;">Upload Profile Picture</button> <!-- Initially hidden submit button -->
+            </form>
+        }
+    </div>
+
+    <!-- All Buttons Next to Each Other (Flexbox) -->
+    <div class="d-flex justify-content-center mt-4">
+        <!-- Manage Users and Edit Profile Buttons -->
+        <a asp-controller="Users1" asp-action="Index" class="btn btn-primary mx-2">Manage Users</a>
+        <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-secondary mx-2">Edit Profile</a>
+
+        <!-- Remove Learner's Personalization (Admin-only) Button -->
+        @if (User.IsInRole("Admin"))
+        {
+            <form asp-action="RemovePersonalization" method="post" class="mx-2">
+                <input type="hidden" name="id" value="@Model.Id" />
+                <button type="submit" class="btn btn-warning">Remove Learner's Personalization</button>
+            </form>
+        }
+    </div>
+
+    <!-- Optional Message Display -->
+    @if (TempData["Message"] != null)
+    {
+        <div class="alert alert-success" style="margin-top: 10px;">
+            @TempData["Message"]
+        </div>
+    }
 </div>
 
-<!-- Option to Remove Learner's Personalization -->
-@if (User.IsInRole("Admin"))
-{
-    <form asp-action="RemovePersonalization" method="post" style="margin-top: 10px;">
-        <input type="hidden" name="id" value="@Model.Id" />
-        <button type="submit" class="btn btn-warning">Remove Learner's Personalization</button>
-    </form>
-}
+<!-- JavaScript to toggle file input visibility -->
+<script>
+    document.getElementById('uploadButton').addEventListener('click', function () {
+        // Toggle the file input field visibility
+        var fileInput = document.getElementById('profilePicture');
+        var submitButton = document.getElementById('submitButton');
 
-<!-- Optional Message Display -->
-@if (TempData["Message"] != null)
-{
-    <div class="alert alert-success" style="margin-top: 10px;">
-        @TempData["Message"]
-    </div>
-}
+        if (fileInput.style.display === 'none') {
+            fileInput.style.display = 'block'; // Show the file input
+            submitButton.style.display = 'inline-block'; // Show the submit button
+        }
+    });
+</script>
