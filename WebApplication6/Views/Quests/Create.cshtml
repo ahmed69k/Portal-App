@@ -47,6 +47,11 @@
                 <input asp-for="Title" class="form-control" />
                 <span asp-validation-for="Title" class="text-danger"></span>
             </div>
+            <div class="form-group">
+                <label asp-for="@Model.Collaborative.Deadline" class="control-label"></label>
+                <input asp-for="@Model.Collaborative.Deadline" class="form-control" type="date" />
+                <span asp-validation-for="@Model.Collaborative.Deadline" class="text-danger"></span>
+            </div>
 
 
             <div class="form-group">

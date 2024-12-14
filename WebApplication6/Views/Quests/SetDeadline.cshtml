@@ -1,0 +1,18 @@
+﻿@model WebApplication6.Models.Quest
+
+@{
+    ViewData["Title"] = "Set Deadline";
+}
+
+<h1>Set Deadline for Quest</h1>
+
+<form asp-action="SetDeadline" method="post">
+    <div class="form-group">
+        <label for="deadline">Deadline</label>
+        <input type="datetime-local" id="deadline" name="deadline" class="form-control" required />
+    </div>
+    <input type="hidden" name="questId" value="@Model.QuestId" />
+    <button type="submit" class="btn btn-primary">Save Deadline</button>
+</form>
+
+<a asp-action="Index" class="btn btn-secondary mt-3">Back to Quest List</a>

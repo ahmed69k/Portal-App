@@ -1,20 +1,34 @@
 ﻿@model WebApplication6.Models.Instructor
 
-<h2>Edit Instructor Information</h2>
-<form asp-action="Edit" method="post">
+<h2 class="text-center">Edit Instructor Information</h2>
+
+<form asp-action="Edit" method="post" class="container">
     <input type="hidden" name="role" value="Instructor" />
     <input type="hidden" asp-for="InstructorId" />
-    <div>
-        <label asp-for="Name"></label>
-        <input asp-for="Name" />
+
+    <!-- Name Field -->
+    <div class="mb-3">
+        <label asp-for="Name" class="form-label">Name</label>
+        <input asp-for="Name" class="form-control" />
+        <span asp-validation-for="Name" class="text-danger"></span>
     </div>
-    <div>
-        <label asp-for="LatestQualification"></label>
-        <input asp-for="LatestQualification" />
+
+    <!-- Latest Qualification Field -->
+    <div class="mb-3">
+        <label asp-for="LatestQualification" class="form-label">Latest Qualification</label>
+        <input asp-for="LatestQualification" class="form-control" />
+        <span asp-validation-for="LatestQualification" class="text-danger"></span>
     </div>
-    <div>
-        <label asp-for="ExpertiseArea"></label>
-        <input asp-for="ExpertiseArea" />
+
+    <!-- Expertise Area Field -->
+    <div class="mb-3">
+        <label asp-for="ExpertiseArea" class="form-label">Expertise Area</label>
+        <input asp-for="ExpertiseArea" class="form-control" />
+        <span asp-validation-for="ExpertiseArea" class="text-danger"></span>
     </div>
-    <button type="submit">Save</button>
+
+    <!-- Submit Button -->
+    <div class="text-center">
+        <button type="submit" class="btn btn-primary">Save</button>
+    </div>
 </form>

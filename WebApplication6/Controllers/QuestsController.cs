@@ -148,9 +148,9 @@ namespace WebApplication6.Controllers
         [HttpPost]
 
 
-        public async Task<IActionResult> Create(int questId, string difficultyLevel, string criteria, string description, string title, int maxNumParticipants, DateTime deadline)
+        public async Task<IActionResult> Create(int questId, string difficultyLevel, string criteria, string description, string title, int maxNumParticipants, DateTime? deadline)
         {
-            // Call the stored procedure with parameters
+            // Create the Quest entry
             var result = await _context.Database.ExecuteSqlRawAsync(
                 "EXEC CollaborativeQuest @QuestID, @difficulty_level, @criteria, @description, @title, @Maxnumparticipants, @deadline",
                 new SqlParameter("@QuestID", questId),
@@ -159,10 +159,63 @@ namespace WebApplication6.Controllers
                 new SqlParameter("@description", description),
                 new SqlParameter("@title", title),
                 new SqlParameter("@Maxnumparticipants", maxNumParticipants),
-                new SqlParameter("@deadline", deadline));
+                new SqlParameter("@deadline", (object)deadline ?? DBNull.Value) // Use DBNull.Value if deadline is null
+            );
+
+            // If deadline is provided, insert it into the Collaboratives table
+            if (deadline.HasValue)
+            {
+                // Assuming you have a Collaboratives table that has a relationship with Quest
+                var collaborative = new Collaborative
+                {
+                    QuestId = questId,
+                    Deadline = deadline.Value // Assign the provided deadline
+                };
+
+                _context.Collaboratives.Add(collaborative);
+                await _context.SaveChangesAsync();
+            }
 
             return RedirectToAction("Index");
         }
+
+        public IActionResult SetDeadline(int questId)
+        {
+            var quest = _context.Quests.Find(questId);
+
+            if (quest == null)
+            {
+                return NotFound();
+            }
+
+            // Return the view with the quest details
+            return View(quest);
+        }
+
+        // POST: Quests/SetDeadline
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> SetDeadline(int questId, DateTime deadline)
+        {
+            var quest = await _context.Quests.FindAsync(questId);
+
+            if (quest == null)
+            {
+                return NotFound();
+            }
+
+            // Find the corresponding entry in Collaboratives and update the Deadline
+            var collaborative = _context.Collaboratives.FirstOrDefault(c => c.QuestId == questId);
+
+            if (collaborative != null)
+            {
+                collaborative.Deadline = deadline;
+                await _context.SaveChangesAsync();
+            }
+
+            return RedirectToAction(nameof(Index));
+        }
+
         // GET: Quests/Join/5
         public async Task<IActionResult> Join(int? id)
         {
