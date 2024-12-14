@@ -120,12 +120,7 @@ namespace WebApplication6.Controllers
                     user.InstructorId = instructorId;
                     user.LearnerId = null; // Ensure the LearnerId is null
                 }
-                else
-                {
-                    // Add validation if the learnerId or instructorId is missing or incorrect
-                    ModelState.AddModelError(string.Empty, "Invalid learner or instructor ID.");
-                    return View(user);
-                }
+
 
                 // Add the new user to the database
                 _context.Add(user);
