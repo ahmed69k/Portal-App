@@ -1,0 +1,22 @@
+﻿@model IEnumerable<dynamic>
+
+<h2>Quest Members</h2>
+<table class="table">
+    <thead>
+        <tr>
+            <th>Member ID</th>
+            <th>Quest ID</th>
+            <th>Deadline</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var member in Model)
+        {
+            <tr>
+                <td>@member.MembersParticipating</td>
+                <td>@member.QuestId</td>
+                <td>@member.Deadline</td>
+            </tr>
+        }
+    </tbody>
+</table>

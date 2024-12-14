@@ -216,5 +216,17 @@ namespace WebApplication6.Controllers
         {
             return _context.LearnersCollaborations.Any(e => e.LearnerId == id);
         }
+
+
+        // Existing methods...
+
+        // New method to get quest members
+
+
+
     }
 }
+
+    
+
+

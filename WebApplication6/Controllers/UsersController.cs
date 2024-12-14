@@ -297,7 +297,7 @@ namespace WebApplication6.Controllers
         // POST: Users/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, string role, Learner? learnerModel, Instructor? instructorModel)
+        public async Task<IActionResult> Edit(int id, string role, Learner? learnerModel, Instructor? instructorModel,string? name)
         {
             if (role == "Learner" && learnerModel != null)
             {
