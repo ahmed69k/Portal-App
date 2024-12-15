@@ -12,8 +12,12 @@ else
         <thead>
             <tr>
                 <th>Title</th>
+                <th>Assessment ID</th>
                 <th>Score</th>
                 <th>Total Marks</th>
+                <th>LearnerId</th>
+                <th>Learner Name</th>
+
             </tr>
         </thead>
         <tbody>
@@ -21,9 +25,12 @@ else
             {
                 <tr>
                     <td>@score.Title</td>
+                    <td>@score.AssID</td>
                     <td>@score.Score</td>
                     <td>@score.TotalMarks</td>
-                    
+                    <td>@score.LearnerId</td>
+                    <td>@score.Name</td>
+
                 </tr>
             }
         </tbody>
