@@ -23,13 +23,23 @@
                     <p class="card-text">@item.Description</p>
                     <p class="card-text"><strong>Criteria:</strong> @item.Criteria</p>
                     <p class="card-text"><strong>Quest ID:</strong> @item.QuestId</p>
+                    <p class="card-text"><strong>Deadline:</strong> @item.Collaborative?.Deadline</p>
                     <div class="mt-auto d-flex gap-2">
                         <a asp-action="Details" asp-route-id="@item.QuestId" class="btn btn-primary btn-sm">Details</a>
 
                         @if (User.IsInRole("Instructor"))
                         {
-                            <a asp-action="Edit" asp-route-id="@item.QuestId" class="btn btn-warning btn-sm">Edit</a>
-                            <a asp-action="SetDeadline" asp-route-id="@item.QuestId" class="btn btn-info btn-sm">Add Deadline</a>
+                            <a class="btn btn-warning btn-sm">Edit</a>
+                            @if (item.Collaborative?.Deadline == null)
+                            {
+                                <form asp-action="SetDeadline" asp-controller="Collaboratives" asp-route-questId="@item.QuestId" method="post" style="display:inline;">
+                                    <button type="submit" class="btn btn-info btn-sm">Set Deadline</button>
+                                </form>
+                            }
+
+
+                            
+
                         }
 
                         @if (User.IsInRole("Admin") || User.IsInRole("Instructor"))

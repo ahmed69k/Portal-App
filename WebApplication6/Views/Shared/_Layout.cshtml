@@ -60,10 +60,12 @@
                 @if (User.Identity.IsAuthenticated && User.IsInRole("Learner"))
                 {
                     <a class="nav-link my-quests" href="@Url.Action("Index", "LearnersCollaborations")" style="display:inline-block; margin-left:20px;">My Quests</a>
+                    <a class="nav-link my-quests" href="@Url.Action("Index", "Takenassessments")" style="display:inline-block; margin-left:20px;">Taken Assessments</a>
                 }
                 @if (User.Identity.IsAuthenticated && User.IsInRole("Instructor")||User.IsInRole("Admin"))
                 {
                     <a class="nav-link my-quests" href="@Url.Action("Index", "LearnersCollaborations1")" style="display:inline-block; margin-left:20px;">Collaborative Quests</a>
+                    <a class="nav-link my-quests" href="@Url.Action("Index", "Takenassessments1")" style="display:inline-block; margin-left:20px;">Taken Assessments</a>
                 }
 
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">

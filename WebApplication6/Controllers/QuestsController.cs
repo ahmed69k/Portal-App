@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
+using System.Security.Claims;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
@@ -21,9 +22,25 @@ namespace WebApplication6.Controllers
         }
 
         // GET: Quests
+
+
         public async Task<IActionResult> Index()
         {
-            return View(await _context.Quests.ToListAsync());
+            if (!User.Identity.IsAuthenticated)
+            {
+                return RedirectToAction("Login", "Users");
+            }
+
+            var currentUserId = int.Parse(User.FindFirst("Id")?.Value ?? "0");
+            var currentUserRole = User.FindFirst(ClaimTypes.Role)?.Value;
+
+            // Fetch all quests with related collaborative data (including Deadline)
+            var quests = await _context.Quests
+                .Include(q => q.Collaborative) // Assuming each quest has a Collaborative relation with Deadline
+                .ToListAsync();
+
+            // Pass the quests data to the view
+            return View(quests);
         }
 
         // GET: Quests/Details/5
@@ -57,6 +74,12 @@ namespace WebApplication6.Controllers
         [ValidateAntiForgeryToken]
 
 
+
+
+        // POST: Quests/Edit/5
+        // To protect from overposting attacks, enable the specific properties you want to bind to.
+        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
+
         // GET: Quests/Edit/5
         public async Task<IActionResult> Edit(int? id)
         {
@@ -65,20 +88,22 @@ namespace WebApplication6.Controllers
                 return NotFound();
             }
 
-            var quest = await _context.Quests.FindAsync(id);
+            var quest = await _context.Quests
+                .Include(q => q.Collaborative)  // Include the Collaborative data if necessary
+                .FirstOrDefaultAsync(m => m.QuestId == id);
+
             if (quest == null)
             {
                 return NotFound();
             }
+
             return View(quest);
         }
 
         // POST: Quests/Edit/5
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("QuestId,DifficultyLevel,Criteria,Description,Title")] Quest quest)
+        public async Task<IActionResult> Edit(int id, [Bind("QuestId,DifficultyLevel,Criteria,Description,Title,Deadline")] Quest quest)
         {
             if (id != quest.QuestId)
             {
@@ -89,6 +114,7 @@ namespace WebApplication6.Controllers
             {
                 try
                 {
+                    // Update the quest, including related Collaborative entity if necessary
                     _context.Update(quest);
                     await _context.SaveChangesAsync();
                 }
@@ -105,8 +131,18 @@ namespace WebApplication6.Controllers
                 }
                 return RedirectToAction(nameof(Index));
             }
+
+            // If we got this far, something failed; return the current quest model back to the view.
             return View(quest);
         }
+
+        // Helper method to check if a Quest exists
+        private bool QuestExists(int id)
+        {
+            return _context.Quests.Any(q => q.QuestId == id);
+        }
+
+
 
         // GET: Quests/Delete/5
         public async Task<IActionResult> Delete(int? id)
@@ -141,10 +177,6 @@ namespace WebApplication6.Controllers
             return RedirectToAction(nameof(Index));
         }
 
-        private bool QuestExists(int id)
-        {
-            return _context.Quests.Any(e => e.QuestId == id);
-        }
         [HttpPost]
 
 
@@ -179,42 +211,6 @@ namespace WebApplication6.Controllers
             return RedirectToAction("Index");
         }
 
-        public IActionResult SetDeadline(int questId)
-        {
-            var quest = _context.Quests.Find(questId);
-
-            if (quest == null)
-            {
-                return NotFound();
-            }
-
-            // Return the view with the quest details
-            return View(quest);
-        }
-
-        // POST: Quests/SetDeadline
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> SetDeadline(int questId, DateTime deadline)
-        {
-            var quest = await _context.Quests.FindAsync(questId);
-
-            if (quest == null)
-            {
-                return NotFound();
-            }
-
-            // Find the corresponding entry in Collaboratives and update the Deadline
-            var collaborative = _context.Collaboratives.FirstOrDefault(c => c.QuestId == questId);
-
-            if (collaborative != null)
-            {
-                collaborative.Deadline = deadline;
-                await _context.SaveChangesAsync();
-            }
-
-            return RedirectToAction(nameof(Index));
-        }
 
         // GET: Quests/Join/5
         public async Task<IActionResult> Join(int? id)

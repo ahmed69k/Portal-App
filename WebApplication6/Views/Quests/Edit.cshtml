@@ -1,56 +1,26 @@
-﻿@model WebApplication6.Models.User
+﻿@model WebApplication6.Models.Quest
 
-@{
-    ViewData["Title"] = "Edit";
-}
+<h2>Edit Quest</h2>
 
-<h1>Edit</h1>
-
-<h4>User</h4>
-<hr />
-<div class="row">
-    <div class="col-md-4">
-        <form asp-action="Edit">
-            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-            <input type="hidden" asp-for="Id" />
-            <div class="form-group">
-                <label asp-for="Email" class="control-label"></label>
-                <input asp-for="Email" class="form-control" />
-                <span asp-validation-for="Email" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="Name" class="control-label"></label>
-                <input asp-for="Name" class="form-control" />
-                <span asp-validation-for="Name" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="Role" class="control-label"></label>
-                <input asp-for="Role" class="form-control" />
-                <span asp-validation-for="Role" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="PasswordHash" class="control-label"></label>
-                <input asp-for="PasswordHash" class="form-control" />
-                <span asp-validation-for="PasswordHash" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="ProfilePicture" class="control-label"></label>
-                <input asp-for="ProfilePicture" class="form-control" />
-                <span asp-validation-for="ProfilePicture" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <input type="submit" value="Save" class="btn btn-primary" />
-            </div>
-        </form>
+<form asp-action="Edit">
+    <div class="form-group">
+        <label for="Title">Title</label>
+        <input asp-for="Title" class="form-control" />
     </div>
-</div>
+    <div class="form-group">
+        <label for="Description">Description</label>
+        <input asp-for="Description" class="form-control" />
+    </div>
+    <div class="form-group">
+        <label for="DifficultyLevel">Difficulty Level</label>
+        <input asp-for="DifficultyLevel" class="form-control" />
+    </div>
+    <div class="form-group">
+        <label for="Criteria">Criteria</label>
+        <input asp-for="Criteria" class="form-control" />
+    </div>
 
-<div>
-    <a asp-action="Index">Back to List</a>
-</div>
+    <!-- Additional form fields for Collaborative if necessary -->
 
-@section Scripts {
-    @{
-        await Html.RenderPartialAsync("_ValidationScriptsPartial");
-    }
-}
+    <button type="submit" class="btn btn-primary">Save</button>
+</form>
