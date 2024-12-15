@@ -1,0 +1,24 @@
+﻿@model Collaborative
+
+@{
+    ViewData["Title"] = "Set Deadline";
+}
+
+<div class="container mt-5">
+    <h2>@ViewData["Title"]</h2>
+
+    <form asp-action="SetDeadline" method="post">
+        <div class="form-group">
+            <input type="hidden" asp-for="QuestId" />
+        </div>
+
+        <div class="form-group">
+            <label for="deadline">Deadline:</label>
+            <input type="datetime-local" asp-for="Deadline" class="form-control" />
+        </div>
+
+        <div class="form-group mt-3">
+            <button type="submit" class="btn btn-primary">Set Deadline</button>
+        </div>
+    </form>
+</div>
