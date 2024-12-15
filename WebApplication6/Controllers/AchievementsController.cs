@@ -31,7 +31,7 @@ namespace WebApplication6.Controllers
                                      .FirstOrDefaultAsync(u => u.Id == currentUserId);
 
             // If the user doesn't exist or doesn't have a Learner, return Unauthorized
-            if (user == null || user.Learner == null)
+            if (user == null)
             {
                 return Unauthorized();
             }
@@ -39,15 +39,22 @@ namespace WebApplication6.Controllers
             // Retrieve the LearnerId
             var learnerId = user.LearnerId;
 
-            // Filter achievements by the logged-in learner
-            var fm2Context = _context.Achievements
+            // Initialize the query for Achievements
+            IQueryable<Achievement> fm2Context = _context.Achievements
                                      .Include(a => a.Badge)
-                                     .Include(a => a.Learner)
-                                     .Where(a => a.LearnerId == learnerId);
+                                     .Include(a => a.Learner);
+
+            // Filter Achievements based on the Learner role
+            if (User.IsInRole("Learner"))
+            {
+                fm2Context = fm2Context.Where(a => a.LearnerId == learnerId);
+            }
 
             // Return the filtered achievements
             return View(await fm2Context.ToListAsync());
         }
+
+
 
 
 
