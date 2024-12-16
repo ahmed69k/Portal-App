@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Reflection.Metadata.Ecma335;
-using System.Security.Claims;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
@@ -11,16 +9,16 @@ using WebApplication6.Models;
 
 namespace WebApplication6.Controllers
 {
-    public class TakenassessmentsController : Controller
+    public class Takenassessments1Controller : Controller
     {
         private readonly Fm2Context _context;
 
-        public TakenassessmentsController(Fm2Context context)
+        public Takenassessments1Controller(Fm2Context context)
         {
             _context = context;
         }
 
-        // GET: Takenassessments
+        // GET: Takenassessments1
         public async Task<IActionResult> Index()
         {
             // Check if the user is authenticated
@@ -30,35 +28,31 @@ namespace WebApplication6.Controllers
             }
 
             // Retrieve the current user's ID from the claims
-            var currentUserId = int.Parse(User.FindFirst("Id")?.Value ?? "0");
+            
 
             // Fetch the current user and ensure the Learner relationship is included
-            var user = await _context.Users
-                .Include(u => u.Learner)
-                .FirstOrDefaultAsync(u => u.Id == currentUserId);
+;
 
-            if (user?.Learner == null)
-            {
-                return NotFound(); // If no learner associated with the user, return 404
-            }
+
 
             // Query assessment scores for the specific learner
             var scores = await _context.Takenassessments
-                .Include(t => t.Assessment) // Ensure Assessment is loaded
-                .Where(t => t.LearnerId == user.Learner.LearnerId) // Filter by the learner's ID
+                .Include(t => t.Assessment) // Filter by the learner's ID
                 .Select(t => new
                 {
-                    Title = t.Assessment.Title, // Access the correct Title property
+                    Title = t.Assessment.Title,
+                    AssID = t.AssessmentId,// Access the correct Title property
                     Score = t.ScoredPoint,
                     TotalMarks = t.Assessment.TotalMarks,
-                    LearnerId = t.LearnerId
+                    LearnerId = t.LearnerId,
+                    Name = t.Learner.FirstName + " "+t.Learner.LastName
                 })
                 .ToListAsync();
 
-            return View(scores); 
+            return View(scores);
         }
 
-        // GET: Takenassessments/Details/5
+        // GET: Takenassessments1/Details/5
         public async Task<IActionResult> Details(int? id)
         {
             if (id == null)
@@ -78,7 +72,7 @@ namespace WebApplication6.Controllers
             return View(takenassessment);
         }
 
-        // GET: Takenassessments/Create
+        // GET: Takenassessments1/Create
         public IActionResult Create()
         {
             ViewData["AssessmentId"] = new SelectList(_context.Assessments, "Id", "Id");
@@ -86,7 +80,7 @@ namespace WebApplication6.Controllers
             return View();
         }
 
-        // POST: Takenassessments/Create
+        // POST: Takenassessments1/Create
         // To protect from overposting attacks, enable the specific properties you want to bind to.
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
@@ -104,7 +98,7 @@ namespace WebApplication6.Controllers
             return View(takenassessment);
         }
 
-        // GET: Takenassessments/Edit/5
+        // GET: Takenassessments1/Edit/5
         public async Task<IActionResult> Edit(int? id)
         {
             if (id == null)
@@ -122,7 +116,7 @@ namespace WebApplication6.Controllers
             return View(takenassessment);
         }
 
-        // POST: Takenassessments/Edit/5
+        // POST: Takenassessments1/Edit/5
         // To protect from overposting attacks, enable the specific properties you want to bind to.
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
@@ -159,7 +153,7 @@ namespace WebApplication6.Controllers
             return View(takenassessment);
         }
 
-        // GET: Takenassessments/Delete/5
+        // GET: Takenassessments1/Delete/5
         public async Task<IActionResult> Delete(int? id)
         {
             if (id == null)
@@ -179,7 +173,7 @@ namespace WebApplication6.Controllers
             return View(takenassessment);
         }
 
-        // POST: Takenassessments/Delete/5
+        // POST: Takenassessments1/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
@@ -198,43 +192,5 @@ namespace WebApplication6.Controllers
         {
             return _context.Takenassessments.Any(e => e.AssessmentId == id);
         }
-        public async Task<IActionResult> AssessmentScores(int id)
-        {
-            // Check if the user is authenticated
-            if (!User.Identity.IsAuthenticated)
-            {
-                return Unauthorized(); // Return 401 if user is not authenticated
-            }
-
-            // Retrieve the current user's ID from the claims
-            var currentUserId = int.Parse(User.FindFirst("Id")?.Value ?? "0");
-
-            // Fetch the current user and ensure the Learner relationship is included
-            var user = await _context.Users
-                .Include(u => u.Learner)
-                .FirstOrDefaultAsync(u => u.Id == currentUserId);
-
-            if (user?.Learner == null)
-            {
-                return NotFound(); // If no learner associated with the user, return 404
-            }
-
-            // Query assessment scores for the specific learner
-            var scores = await _context.Takenassessments
-                .Include(t => t.Assessment) // Ensure Assessment is loaded
-                .Where(t => t.LearnerId == user.Learner.LearnerId) // Filter by the learner's ID
-                .Select(t => new
-                {
-                    Title = t.Assessment.Title, // Access the correct Title property
-                    Score = t.ScoredPoint,
-                    TotalMarks = t.Assessment.TotalMarks
-                })
-                .ToListAsync();
-
-            return View(scores); // Pass scores to the view
-        }
-
-
     }
 }
-

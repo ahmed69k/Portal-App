@@ -6,8 +6,6 @@
 
 <h1>Collaborative Quests</h1>
 
-
-
 <div class="row row-cols-1 row-cols-md-3 g-4">
     @foreach (var item in Model)
     {
@@ -26,11 +24,12 @@
                     <ul>
                         @foreach (var learner in item.Learners)
                         {
-                            
-                            <li> @learner.FirstName @learner.LastName - @learner.LearnerId</li>
+                            <li>@learner.FirstName @learner.LastName - @learner.LearnerId</li>
                         }
                     </ul>
 
+                    <!-- Edit Button -->
+                    <a href="@Url.Action("Edit", "Quest", new { id = item.Quest.QuestId })" class="btn btn-primary mt-auto">Edit</a>
                 </div>
             </div>
         </div>

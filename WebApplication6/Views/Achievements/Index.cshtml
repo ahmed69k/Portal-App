@@ -1,0 +1,51 @@
+﻿@model IEnumerable<WebApplication6.Models.Achievement>
+
+@{
+    ViewData["Title"] = "Achievements";
+}
+
+<h1>@ViewData["Title"]</h1>
+
+<p>
+    @if (User.IsInRole("Instructor") || User.IsInRole("Admin"))
+    {
+        <a class="btn btn-primary" asp-action="Create">Create New Achievement</a>
+    }
+</p>
+
+<div class="row row-cols-1 row-cols-md-3 g-4">
+    @foreach (var item in Model)
+    {
+        <div class="col">
+            <div class="card shadow-sm h-100">
+                <div class="card-body">
+                    <!-- Achievement Details -->
+                    <h5 class="card-title">@item.Description</h5>
+                    <h6 class="card-subtitle mb-2 text-muted">Earned on: @item.DateEarned?.ToString("yyyy-MM-dd")</h6>
+                    <p class="card-text"><strong>Type:</strong> @item.Type</p>
+
+                    <!-- Badge Details -->
+                    <hr />
+                    <h6 class="card-subtitle mb-2 text-primary"><strong>Badge Details:</strong></h6>
+                    <p class="card-text"><strong>Badge Title:</strong> @item.Badge.Title</p>
+                    <p class="card-text"><strong>Badge Description:</strong> @item.Badge.Description</p>
+                    <p class="card-text"><strong>Criteria:</strong> @item.Badge.Criteria</p>
+                    <p class="card-text"><strong>Points:</strong> @item.Badge.Points</p>
+                    @if (User.IsInRole("Instructor") || User.IsInRole("Admin")){
+                    <p class="card-text"><strong>Learner ID:</strong> @item.Learner.LearnerId</p>
+                    }
+
+                    <!-- Action buttons for Instructor or Admin -->
+                    @if (User.IsInRole("Instructor") || User.IsInRole("Admin"))
+                    {
+                        <div class="d-flex justify-content-between gap-2">
+                            <a class="btn btn-warning btn-sm" asp-action="Edit" asp-route-id="@item.AchievementId">Edit</a>
+                            <a class="btn btn-info btn-sm" asp-action="Details" asp-route-id="@item.AchievementId">Details</a>
+                            <a class="btn btn-danger btn-sm" asp-action="Delete" asp-route-id="@item.AchievementId" onclick="return confirm('Are you sure you want to delete this achievement?')">Delete</a>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    }
+</div>
