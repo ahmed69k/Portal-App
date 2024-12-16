@@ -142,49 +142,65 @@ namespace WebApplication6.Controllers
             return View(personalizationProfile);
         }
 
-        // POST: PersonalizationProfiles/Delete/5
-        [HttpPost, ActionName("Delete")]
+        [HttpPost, ActionName("DeleteConfirmed")]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> DeleteConfirmed(int? learnerId)
+        public async Task<IActionResult> DeleteConfirmed(int learnerId, int profileId)
         {
-            // Retrieve the Learner object by learnerId
-            Learner learner = await _context.Learners
+            var learner = await _context.Learners
                 .Include(l => l.PersonalizationProfiles)
                 .FirstOrDefaultAsync(l => l.LearnerId == learnerId);
 
-            // Check if learner exists and has associated personalization profiles
-            if (learner == null || learner.PersonalizationProfiles == null || !learner.PersonalizationProfiles.Any())
+            if (learner == null)
             {
-                return NotFound();
+                return NotFound("Learner not found.");
             }
 
-            // Get the first profileId (or handle other logic if needed)
-            var profileId = learner.PersonalizationProfiles.FirstOrDefault()?.ProfileId;
+            var profileToDelete = learner.PersonalizationProfiles
+                .FirstOrDefault(p => p.ProfileId == profileId);
 
-            if (profileId == null)
+            if (profileToDelete == null)
             {
-                return NotFound();
+                return NotFound("Profile not found.");
             }
 
-            // Now find the PersonalizationProfile using both learnerId and profileId
-            var personalizationProfile = await _context.PersonalizationProfiles
-                .FindAsync(learnerId, profileId);
+            _context.PersonalizationProfiles.Remove(profileToDelete);
+            await _context.SaveChangesAsync();
 
-            // If the profile is found, remove it
-            if (personalizationProfile != null)
-            {
-                _context.PersonalizationProfiles.Remove(personalizationProfile);
-                await _context.SaveChangesAsync();
-            }
+            TempData["SuccessMessage"] = "Personalization profile removed successfully.";
 
             return RedirectToAction("Index", "Learners");
-
         }
+
 
 
         private bool PersonalizationProfileExists(int id)
         {
             return _context.PersonalizationProfiles.Any(e => e.LearnerId == id);
         }
+
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> AddProfile(int learnerId, PersonalizationProfile profile)
+        {
+            var learner = await _context.Learners
+                .Include(l => l.PersonalizationProfiles)
+                .FirstOrDefaultAsync(l => l.LearnerId == learnerId);
+
+            if (learner == null)
+            {
+                return NotFound("Learner not found.");
+            }
+
+            // Add the new profile
+            learner.PersonalizationProfiles.Add(profile);
+            await _context.SaveChangesAsync();
+
+            TempData["SuccessMessage"] = "Personalization profile added successfully.";
+
+            // Redirect to the Learners index to reflect changes
+            return RedirectToAction("Index", "Learners");
+        }
+
     }
 }

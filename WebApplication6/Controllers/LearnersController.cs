@@ -18,33 +18,43 @@ namespace WebApplication6.Controllers
             _context = context;
         }
 
-        // GET: Learners
-        public async Task<IActionResult> Index()
-        {
-            if (!User.IsInRole("Admin"))
-            {
-                return Unauthorized();
-            }
-            return View(await _context.Learners.ToListAsync());
-        }
+       // GET: Learners
+public async Task<IActionResult> Index()
+{
+    if (!User.IsInRole("Admin"))
+    {
+        return Unauthorized();
+    }
 
-        // GET: Learners/Details/5
-        public async Task<IActionResult> Details(int? id)
-        {
-            if (id == null)
-            {
-                return NotFound();
-            }
+    // Include PersonalizationProfiles in the query
+    return View(await _context.Learners
+        .Include(l => l.PersonalizationProfiles) // Include related profiles
+        .ToListAsync());
+}
 
-            var learner = await _context.Learners
-                .FirstOrDefaultAsync(m => m.LearnerId == id);
-            if (learner == null)
-            {
-                return NotFound();
-            }
+// GET: Learners/Details/5
+public async Task<IActionResult> Details(int? id)
+{
+    if (id == null)
+    {
+        return NotFound();
+    }
 
-            return View(learner);
-        }
+    // Include PersonalizationProfiles in the query
+    var learner = await _context.Learners
+        .Include(l => l.PersonalizationProfiles) // Include related profiles
+        .FirstOrDefaultAsync(m => m.LearnerId == id);
+
+    if (learner == null)
+    {
+        return NotFound();
+    }
+
+    return View(learner);
+}
+
+
+       
 
         // GET: Learners/Create
         public IActionResult Create()
