@@ -1,0 +1,14 @@
+﻿@model WebApplication6.Models.DiscussionForum
+
+<h1>Create Discussion Forum</h1>
+<form asp-action="CreateDiscussionForum" method="post">
+    <div class="form-group">
+        <label asp-for="Title">Title</label>
+        <input asp-for="Title" class="form-control" required />
+    </div>
+    <div class="form-group">
+        <label asp-for="Description">Description</label>
+        <textarea asp-for="Description" class="form-control" required></textarea>
+    </div>
+    <button type="submit" class="btn btn-primary">Create</button>
+</form>

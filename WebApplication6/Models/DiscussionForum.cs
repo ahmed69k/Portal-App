@@ -22,4 +22,5 @@ public partial class DiscussionForum
     public virtual ICollection<LearnerDiscussion> LearnerDiscussions { get; set; } = new List<LearnerDiscussion>();
 
     public virtual Module? Module { get; set; }
+    
 }
