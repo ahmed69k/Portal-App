@@ -70,13 +70,15 @@
         <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-secondary mx-2">Edit Profile</a>
 
         <!-- Remove Learner's Personalization (Admin-only) Button -->
+        <!-- Remove Learner's Personalization (Admin-only) Button) -->
         @if (User.IsInRole("Admin"))
         {
-            <form asp-action="RemovePersonalization" method="post" class="mx-2">
+            <form asp-controller="Learners" asp-action="Index" method="post" class="mx-2">
                 <input type="hidden" name="id" value="@Model.Id" />
-                <button type="submit" class="btn btn-warning">Remove Learner's Personalization</button>
+                <button type="submit" class="btn btn-warning">Manage Learners</button>
             </form>
         }
+
     </div>
 
     <!-- Optional Message Display -->

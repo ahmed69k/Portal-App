@@ -21,6 +21,10 @@ namespace WebApplication6.Controllers
         // GET: Learners
         public async Task<IActionResult> Index()
         {
+            if (!User.IsInRole("Admin"))
+            {
+                return Unauthorized();
+            }
             return View(await _context.Learners.ToListAsync());
         }
 
