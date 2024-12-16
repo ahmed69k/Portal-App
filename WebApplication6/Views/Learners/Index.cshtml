@@ -34,6 +34,7 @@
                     <div class="mt-auto d-flex gap-2">
                         <a asp-action="Edit" asp-route-id="@item.LearnerId" class="btn btn-warning btn-sm">Edit</a>
                         <a asp-action="Details" asp-route-id="@item.LearnerId" class="btn btn-info btn-sm">Details</a>
+                        <a asp-action="Delete" asp-route-id="@item.LearnerId" class="btn btn-dark btn-sm">Delete</a>
 
                         @if (item.PersonalizationProfiles != null && item.PersonalizationProfiles.Any())
                         {
