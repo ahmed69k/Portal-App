@@ -13,6 +13,7 @@ using Microsoft.AspNetCore.Authentication.Cookies;
 using System.Security.Claims;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.Data.SqlClient;
 
 namespace WebApplication6.Controllers
 {
@@ -238,79 +239,78 @@ namespace WebApplication6.Controllers
             return RedirectToAction(nameof(DiscussionForums));
         }
 
-        [HttpPost]
-        [HttpPost]
-        [ValidateAntiForgeryToken]
         public async Task<IActionResult> AddPost(int forumId, string postContent)
+{
+    var logMessages = new List<string>();
+
+    try
+    {
+        // Get the logged-in user's ID
+        var currentUserId = int.Parse(User.FindFirst("Id")?.Value ?? "0");
+        logMessages.Add($"Current User ID: {currentUserId}");
+
+        // Validate user and retrieve learner details
+        var user = await _context.Users.Include(u => u.Learner).FirstOrDefaultAsync(u => u.Id == currentUserId);
+
+        if (user?.Learner == null)
         {
-            // Logger for debugging
-            var logMessages = new List<string>();
-
-            // Get the logged-in learner's ID from claims
-            var learnerIdClaim = User.FindFirst("Id")?.Value;
-            logMessages.Add($"LearnerIdClaim: {learnerIdClaim}");
-
-            // Validate the learner ID
-            if (string.IsNullOrEmpty(learnerIdClaim) || !int.TryParse(learnerIdClaim, out int learnerId))
-            {
-                logMessages.Add("Invalid learner ID. Redirecting to forum details.");
-                TempData["DebugLogs"] = string.Join("\n", logMessages);
-                TempData["Error"] = "Invalid learner details. Please log in.";
-                return RedirectToAction("DiscussionForumDetails", new { id = forumId });
-            }
-
-            logMessages.Add($"Parsed LearnerId: {learnerId}");
-
-            // Validate the forum existence
-            var forum = await _context.DiscussionForums
-                .FirstOrDefaultAsync(f => f.ForumId == forumId);
-
-            if (forum == null)
-            {
-                logMessages.Add($"Forum with ID {forumId} does not exist.");
-                TempData["DebugLogs"] = string.Join("\n", logMessages);
-                TempData["Error"] = "The discussion forum does not exist.";
-                return RedirectToAction("DiscussionForums");
-            }
-
-            logMessages.Add($"Forum found: {forum.Title}");
-
-            // Create the new post
-            var learnerDiscussion = new LearnerDiscussion
-            {
-                ForumId = forumId,
-                LearnerId = learnerId,
-                Post = postContent,
-                Time = DateTime.Now
-            };
-            logMessages.Add($"New discussion post created: {learnerDiscussion.Post}");
-
-            try
-            {
-                // Add the post to the database
-                _context.LearnerDiscussions.Add(learnerDiscussion);
-                await _context.SaveChangesAsync();
-                logMessages.Add("Post saved to database.");
-
-                // Update the forum's last active timestamp
-                forum.LastActive = DateTime.Now;
-                _context.DiscussionForums.Update(forum);
-                await _context.SaveChangesAsync();
-                logMessages.Add("Forum last active timestamp updated.");
-
-                TempData["Success"] = "Your post has been added successfully.";
-            }
-            catch (Exception ex)
-            {
-                logMessages.Add($"Exception occurred: {ex.Message}");
-                TempData["Error"] = $"An error occurred while adding the post: {ex.Message}";
-            }
-
-            // Save logs to TempData as a single string
+            logMessages.Add("Invalid user or learner details.");
             TempData["DebugLogs"] = string.Join("\n", logMessages);
-
+            TempData["Error"] = "Invalid learner details. Please log in.";
             return RedirectToAction("DiscussionForumDetails", new { id = forumId });
         }
+
+        var learnerId = user.Learner.LearnerId;
+        logMessages.Add($"Retrieved Learner ID: {learnerId}");
+
+        // Validate the forum existence
+        var forum = await _context.DiscussionForums.FirstOrDefaultAsync(f => f.ForumId == forumId);
+        if (forum == null)
+        {
+            logMessages.Add($"Forum with ID {forumId} does not exist.");
+            TempData["DebugLogs"] = string.Join("\n", logMessages);
+            TempData["Error"] = "The discussion forum does not exist.";
+            return RedirectToAction("DiscussionForums");
+        }
+
+        logMessages.Add($"Forum found: {forum.Title}");
+
+        // Create a new post for the learner
+        var learnerDiscussion = new LearnerDiscussion
+        {
+            ForumId = forumId,
+            LearnerId = learnerId,
+            Post = postContent,
+            Time = DateTime.Now
+        };
+        logMessages.Add("Creating new discussion post...");
+
+        // Add the post to the database
+        _context.LearnerDiscussions.Add(learnerDiscussion);
+        await _context.SaveChangesAsync();
+        logMessages.Add("Post added successfully.");
+
+        // Update the forum's last active timestamp
+        forum.LastActive = DateTime.Now;
+        _context.DiscussionForums.Update(forum);
+        await _context.SaveChangesAsync();
+        logMessages.Add("Forum last active timestamp updated.");
+
+        TempData["Success"] = "Your post has been added successfully.";
+    }
+    catch (Exception ex)
+    {
+        logMessages.Add($"Error: {ex.Message}");
+        TempData["Error"] = $"An error occurred while adding the post: {ex.Message}";
+    }
+
+    // Save logs to TempData for debugging
+    TempData["DebugLogs"] = string.Join("\n", logMessages);
+
+    return RedirectToAction("DiscussionForumDetails", new { id = forumId });
+}
+
+
 
 
 
