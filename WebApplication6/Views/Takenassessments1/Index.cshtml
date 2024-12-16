@@ -1,6 +1,6 @@
 ﻿@model IEnumerable<dynamic>
 
-<h2>Assessment Scores</h2>
+<h2 class="mb-4">Assessment Scores</h2>
 
 @if (!Model.Any())
 {
@@ -8,31 +8,35 @@
 }
 else
 {
-    <table class="table table-striped">
-        <thead>
-            <tr>
-                <th>Title</th>
-                <th>Assessment ID</th>
-                <th>Score</th>
-                <th>Total Marks</th>
-                <th>LearnerId</th>
-                <th>Learner Name</th>
-
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var score in Model)
-            {
+    <div class="table-responsive">
+        <table class="table table-striped table-bordered align-middle">
+            <thead class="table-dark">
                 <tr>
-                    <td>@score.Title</td>
-                    <td>@score.AssID</td>
-                    <td>@score.Score</td>
-                    <td>@score.TotalMarks</td>
-                    <td>@score.LearnerId</td>
-                    <td>@score.Name</td>
-
+                    <th>Title</th>
+                    <th>Assessment ID</th>
+                    <th>Score</th>
+                    <th>Total Marks</th>
+                    <th>Learner ID</th>
+                    <th>Learner Name</th>
+                    <th class="text-center">Actions</th>
                 </tr>
-            }
-        </tbody>
-    </table>
+            </thead>
+            <tbody>
+                @foreach (var score in Model)
+                {
+                    <tr>
+                        <td>@score.Title</td>
+                        <td>@score.AssID</td>
+                        <td>@score.Score</td>
+                        <td>@score.TotalMarks</td>
+                        <td>@score.LearnerId</td>
+                        <td>@score.Name</td>
+                        <td class="text-center">
+                            <a class="btn btn-warning btn-sm" asp-action="Edit" asp-route-AssID="@score.AssID" asp-route-learnerId="@score.LearnerId">Edit</a>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
 }
