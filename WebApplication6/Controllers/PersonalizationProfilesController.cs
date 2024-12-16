@@ -147,6 +147,17 @@ namespace WebApplication6.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int? learnerId)
         {
+
+            var currentUserId = int.Parse(User.FindFirst("Id")?.Value ?? "0");
+            var currentUserRole = User.FindFirst(ClaimTypes.Role)?.Value;
+
+            // Fetch the current learner associated with the logged-in user
+            var user = await _context.Users.Include(u => u.Learner).FirstOrDefaultAsync(u => u.Id == currentUserId);
+
+            if (user == null || user.Learner == null || user.Role != "Learner")
+            {
+                return Forbid(); // Only learners should access this page
+            }
             // Retrieve the Learner object by learnerId
             Learner learner = await _context.Learners
                 .Include(l => l.PersonalizationProfiles)
@@ -176,7 +187,10 @@ namespace WebApplication6.Controllers
                 _context.PersonalizationProfiles.Remove(personalizationProfile);
                 await _context.SaveChangesAsync();
             }
-
+            if (user.Role == "Learner")
+            {
+               return RedirectToAction("Index", "Home");
+            }
             return RedirectToAction("Index", "Learners");
 
         }
