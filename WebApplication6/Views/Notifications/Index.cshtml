@@ -1,0 +1,45 @@
+﻿@model IEnumerable<WebApplication6.Models.Notification>
+
+@{
+    ViewData["Title"] = "Notifications";
+}
+
+<h1 class="text-center mb-4">Notifications</h1>
+
+<p class="text-end">
+    <a class="btn btn-primary" asp-action="Create">Create New</a>
+</p>
+
+<div class="row">
+    @foreach (var item in Model)
+    {
+        <div class="col-md-4 mb-4">
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <h5 class="card-title">
+                        Urgency: <span class="badge @(item.UrgencyLevel == "High" ? "bg-danger" : "bg-warning")">
+                            @Html.DisplayFor(modelItem => item.UrgencyLevel)
+                        </span>
+                    </h5>
+                    <p class="card-text">
+                        <strong>Message:</strong> @Html.DisplayFor(modelItem => item.Message)
+                    </p>
+                    <p class="small text-muted">
+                        <strong>Time:</strong> @Html.DisplayFor(modelItem => item.Timestamp)
+                    </p>
+                    <p>
+                        <span class="badge @(item.ReadStatus.HasValue && item.ReadStatus.Value ? "bg-success" : "bg-secondary")">
+                            @(item.ReadStatus.HasValue ? (item.ReadStatus.Value ? "Read" : "Unread") : "Status Unknown")
+                        </span>
+
+                    </p>
+                    <div class="d-flex justify-content-between">
+                        <a class="btn btn-outline-info btn-sm" asp-action="Details" asp-route-id="@item.Id">Details</a>
+                        <a class="btn btn-outline-primary btn-sm" asp-action="Edit" asp-route-id="@item.Id">Edit</a>
+                        <a class="btn btn-outline-danger btn-sm" asp-action="Delete" asp-route-id="@item.Id">Delete</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+</div>
