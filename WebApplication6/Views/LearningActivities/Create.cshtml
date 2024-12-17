@@ -1,0 +1,59 @@
+﻿@model WebApplication6.Models.LearningActivity
+
+@{
+    ViewData["Title"] = "Add Learning Activity";
+}
+
+<h1>Add Learning Activity</h1>
+
+<hr />
+<div class="row">
+    <div class="col-md-6">
+        <form asp-action="Create" method="post">
+            @Html.AntiForgeryToken()
+
+            <!-- Activity Type -->
+            <div class="form-group mb-3">
+                <label asp-for="ActivityType" class="form-label">Activity Type</label>
+                <input asp-for="ActivityType" class="form-control" placeholder="e.g., Quiz, Assignment, Discussion" />
+                <span asp-validation-for="ActivityType" class="text-danger"></span>
+            </div>
+
+            <!-- Instruction Details -->
+            <div class="form-group mb-3">
+                <label asp-for="InstructionDetails" class="form-label">Instructions</label>
+                <textarea asp-for="InstructionDetails" class="form-control" rows="3" placeholder="Provide instructions for the activity"></textarea>
+                <span asp-validation-for="InstructionDetails" class="text-danger"></span>
+            </div>
+
+            <!-- Max Points -->
+            <div class="form-group mb-3">
+                <label asp-for="MaxPoints" class="form-label">Maximum Points</label>
+                <input asp-for="MaxPoints" class="form-control" type="number" placeholder="e.g., 100" />
+                <span asp-validation-for="MaxPoints" class="text-danger"></span>
+            </div>
+
+            <!-- Module Dropdown -->
+            <div class="form-group mb-3">
+                <label asp-for="ModuleId" class="form-label">Select Module</label>
+                <select asp-for="ModuleId" asp-items="ViewBag.ModuleId" class="form-control">
+                    <option value="">-- Select a Module --</option>
+                </select>
+                <span asp-validation-for="ModuleId" class="text-danger"></span>
+            </div>
+
+            <!-- Course ID Display -->
+            <div class="form-group mb-3">
+                <label for="CourseId" class="form-label">Course ID (Auto-filled)</label>
+                <input id="CourseId" name="CourseId" class="form-control" readonly />
+            </div>
+
+            <!-- Submit Button -->
+            <div class="form-group">
+                <button type="submit" class="btn btn-primary">Save</button>
+                <a asp-action="Index" class="btn btn-secondary">Cancel</a>
+            </div>
+        </form>
+    </div>
+</div>
+

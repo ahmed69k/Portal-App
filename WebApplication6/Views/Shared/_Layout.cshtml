@@ -83,6 +83,11 @@
                 </button>
 
                 <!-- Navbar Items -->
+                @if (User.Identity.IsAuthenticated && (User.IsInRole("Learner") || User.IsInRole("Instructor") || User.IsInRole("Admin")))
+                {
+                    <a class="nav-link my-quests" href="@Url.Action("Index", "Courses")" style="display:inline-block; margin-left:20px;">Courses</a>
+                }
+
                 <div class="collapse navbar-collapse" id="navbarNav">
                     <ul class="navbar-nav ms-auto">
                         <li class="nav-item">
