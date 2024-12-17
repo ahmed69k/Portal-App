@@ -57,8 +57,8 @@
                     <!-- Initially hidden file input field -->
                     <input type="file" class="form-control" id="profilePicture" name="profilePicture" accept="image/*" style="display: none;" />
                 </div>
-                <button type="button" class="btn btn-secondary" id="uploadButton">Add Profile Picture</button> <!-- Button to trigger file input visibility -->
-                <button type="submit" class="btn btn-primary mt-3" id="submitButton" style="display: none;">Upload Profile Picture</button> <!-- Initially hidden submit button -->
+                <button type="button" class="btn btn-outline-secondary" id="uploadButton">Add Profile Picture</button> <!-- Button to trigger file input visibility -->
+                <button type="submit" class="btn btn-outline-primary mt-3" id="submitButton" style="display: none;">Upload Profile Picture</button> <!-- Initially hidden submit button -->
             </form>
         }
     </div>
@@ -66,17 +66,18 @@
     <!-- All Buttons Next to Each Other (Flexbox) -->
     <div class="d-flex justify-content-center mt-4">
         <!-- Manage Users and Edit Profile Buttons -->
-        <a asp-controller="Users1" asp-action="Index" class="btn btn-primary mx-2">Manage Users</a>
-        <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-secondary mx-2">Edit Profile</a>
+        <a asp-controller="Users1" asp-action="Index" class="btn btn-outline-primary mx-2">Manage Users</a>
 
         <!-- Remove Learner's Personalization (Admin-only) Button -->
+        <!-- Remove Learner's Personalization (Admin-only) Button) -->
         @if (User.IsInRole("Admin"))
         {
-            <form asp-action="RemovePersonalization" method="post" class="mx-2">
+            <form asp-controller="Learners" asp-action="Index" method="post" class="mx-2">
                 <input type="hidden" name="id" value="@Model.Id" />
-                <button type="submit" class="btn btn-warning">Remove Learner's Personalization</button>
+                <button type="submit" class="btn btn-outline-warning">Manage Learners</button>
             </form>
         }
+
     </div>
 
     <!-- Optional Message Display -->

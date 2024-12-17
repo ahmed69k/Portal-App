@@ -1,0 +1,38 @@
+﻿@model WebApplication6.Models.Leaderboard
+
+@{
+    ViewData["Title"] = "Leaderboard - " + Model.Season;
+}
+
+<h1 class="text-center mb-4">Leaderboard - @Model.Season</h1>
+
+<p class="text-end">
+    <a class="btn btn-primary" asp-action="Create">Add New Entry</a>
+</p>
+
+<div class="row">
+    @foreach (var ranking in Model.Rankings)
+    {
+        <div class="col-md-4 mb-4">
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <h5 class="card-title">
+                        Position: <strong>#@ranking.Rank</strong>
+                    </h5>
+                    <p class="card-text">
+                        <strong>User:</strong> @ranking.LearnerId
+                    </p>
+                    <p class="card-text">
+                        <strong>Score:</strong> @ranking.TotalPoints
+                    </p>
+
+                    <div class="d-flex justify-content-between">
+                        <a class="btn btn-outline-info btn-sm" asp-action="Details" asp-route-id="@ranking.LearnerId">Details</a>
+                        <a class="btn btn-outline-primary btn-sm" asp-action="Edit" asp-route-id="@ranking.LearnerId">Edit</a>
+                        <a class="btn btn-outline-danger btn-sm" asp-action="Delete" asp-route-id="@ranking.LearnerId">Delete</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+</div>

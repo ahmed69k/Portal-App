@@ -18,6 +18,7 @@ public partial class Learner
     public virtual User? User { get; set; } // Navigation property to the User table
 
     // Navigation properties for related entities
+
     public virtual ICollection<Achievement> Achievements { get; set; } = new List<Achievement>();
     public virtual ICollection<CourseEnrollment> CourseEnrollments { get; set; } = new List<CourseEnrollment>();
     public virtual ICollection<EmotionalFeedback> EmotionalFeedbacks { get; set; } = new List<EmotionalFeedback>();

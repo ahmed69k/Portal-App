@@ -1,0 +1,56 @@
+﻿@model WebApplication6.Models.DiscussionForum
+
+<h1>@Model.Title</h1>
+<p>@Model.Description</p>
+<p><strong>Last Active:</strong> @Model.LastActive?.ToString("g")</p>
+
+<hr />
+
+<h3>Posts</h3>
+@if (Model.LearnerDiscussions != null && Model.LearnerDiscussions.Any())
+{
+    <ul class="list-group">
+        @foreach (var post in Model.LearnerDiscussions)
+        {
+            <li class="list-group-item">
+                <strong>@post.Learner?.FirstName @post.Learner?.LastName</strong>
+                <small class="text-muted">(@post.Time?.ToString("g"))</small>
+                <p>@post.Post</p>
+            </li>
+        }
+    </ul>
+}
+else
+{
+    <p>No posts yet. Be the first to add one!</p>
+}
+
+<hr />
+
+@if (User.IsInRole("Learner") || User.IsInRole("Instructor"))
+{
+    <form asp-action="AddPost" method="post">
+        <input type="hidden" name="forumId" value="@Model.ForumId" />
+        <div class="form-group">
+            <textarea name="postContent" class="form-control" placeholder="Write your post here..." required></textarea>
+        </div>
+        <button type="submit" class="btn btn-outline-primary mt-2">Add Post</button>
+    </form>
+}
+else
+{
+    <p class="text-warning">Only learners and instructors can post in this forum.</p>
+}
+@if (TempData["DebugLogs"] != null)
+{
+    <div class="alert alert-info">
+        <h5>Debug Logs:</h5>
+        <ul>
+            @foreach (var log in TempData["DebugLogs"].ToString().Split('\n'))
+            {
+                <li>@log</li>
+            }
+        </ul>
+    </div>
+}
+

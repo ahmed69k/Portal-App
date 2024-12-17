@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using WebApplication6.Models;
 
@@ -98,60 +99,65 @@ namespace WebApplication6.Controllers
             return View(takenassessment);
         }
 
-        // GET: Takenassessments1/Edit/5
-        public async Task<IActionResult> Edit(int? id)
+        [HttpGet]
+        public async Task<IActionResult> Edit(int AssID, int learnerId)
         {
-            if (id == null)
+            var takenAssessment = await _context.Takenassessments
+                .FirstOrDefaultAsync(t => t.AssessmentId == AssID && t.LearnerId == learnerId);
+
+            if (takenAssessment == null)
             {
                 return NotFound();
             }
 
-            var takenassessment = await _context.Takenassessments.FindAsync(id);
-            if (takenassessment == null)
-            {
-                return NotFound();
-            }
-            ViewData["AssessmentId"] = new SelectList(_context.Assessments, "Id", "Id", takenassessment.AssessmentId);
-            ViewData["LearnerId"] = new SelectList(_context.Learners, "LearnerId", "LearnerId", takenassessment.LearnerId);
-            return View(takenassessment);
+            return View(takenAssessment);
         }
+
+
 
         // POST: Takenassessments1/Edit/5
         // To protect from overposting attacks, enable the specific properties you want to bind to.
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("AssessmentId,LearnerId,ScoredPoint")] Takenassessment takenassessment)
+        public async Task<IActionResult> Edit(int AssessmentId, int LearnerId, int ScoredPoint)
         {
-            if (id != takenassessment.AssessmentId)
-            {
-                return NotFound();
-            }
-
+            // Ensure the model is valid
             if (ModelState.IsValid)
             {
                 try
                 {
-                    _context.Update(takenassessment);
-                    await _context.SaveChangesAsync();
+                    // Execute the GradeUpdate stored procedure
+                    var learnerIdParam = new SqlParameter("@LearnerID", LearnerId);
+                    var assessmentIdParam = new SqlParameter("@AssessmentID", AssessmentId);
+                    var pointsParam = new SqlParameter("@points", ScoredPoint);
+
+                    // Execute the stored procedure
+                    await _context.Database.ExecuteSqlRawAsync("EXEC GradeUpdate @LearnerID, @AssessmentID, @points",
+                                                                learnerIdParam, assessmentIdParam, pointsParam);
+
+                    // Optionally, you can check the result or handle any exception
+
+                    // Redirect to Index after successful update
+                    return RedirectToAction(nameof(Index));
                 }
-                catch (DbUpdateConcurrencyException)
+                catch (Exception ex)
                 {
-                    if (!TakenassessmentExists(takenassessment.AssessmentId))
-                    {
-                        return NotFound();
-                    }
-                    else
-                    {
-                        throw;
-                    }
+                    // Handle exceptions here (logging, custom error messages, etc.)
+                    ModelState.AddModelError("", "An error occurred while updating the grade.");
                 }
-                return RedirectToAction(nameof(Index));
             }
-            ViewData["AssessmentId"] = new SelectList(_context.Assessments, "Id", "Id", takenassessment.AssessmentId);
-            ViewData["LearnerId"] = new SelectList(_context.Learners, "LearnerId", "LearnerId", takenassessment.LearnerId);
-            return View(takenassessment);
+
+            // If model state is invalid, return the view with the current values
+            return View();
         }
+
+
+        private bool TakenassessmentExists(int AssessmentId, int LearnerId)
+        {
+            return _context.Takenassessments.Any(e => e.AssessmentId == AssessmentId && e.LearnerId == LearnerId);
+        }
+
 
         // GET: Takenassessments1/Delete/5
         public async Task<IActionResult> Delete(int? id)

@@ -21,7 +21,10 @@ namespace WebApplication6.Controllers
         // GET: Users1
         public async Task<IActionResult> Index()
         {
-            // Retrieve all users
+            if (!User.IsInRole("Admin"))
+            {
+                return Unauthorized();
+            }
             var users = await _context.Users.ToListAsync();
 
             return View(users);

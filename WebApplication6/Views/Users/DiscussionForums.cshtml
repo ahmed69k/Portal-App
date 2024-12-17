@@ -1,0 +1,31 @@
+﻿@model IEnumerable<WebApplication6.Models.DiscussionForum>
+
+<h1>Discussion Forums</h1>
+@if (User.IsInRole("Admin") || User.IsInRole("Instructor"))
+{
+    <a asp-action="CreateDiscussionForum" class="btn btn-primary btn-sm">New Forum</a>
+}
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>Title</th>
+            <th>Description</th>
+            <th>Last Active</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var forum in Model)
+        {
+            <tr>
+                <td>@forum.Title</td>
+                <td>@forum.Description</td>
+                <td>@forum.LastActive?.ToString("g")</td>
+                <td>
+                    <a asp-action="DiscussionForumDetails" asp-route-id="@forum.ForumId" class="btn btn-outline-info btn-sm">View</a>
+                   
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

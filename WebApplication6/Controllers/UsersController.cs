@@ -12,6 +12,8 @@ using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using System.Security.Claims;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.Data.SqlClient;
 
 namespace WebApplication6.Controllers
 {
@@ -27,6 +29,10 @@ namespace WebApplication6.Controllers
         // GET: Users
         public async Task<IActionResult> Index()
         {
+            if (!User.IsInRole("Admin"))
+            {
+                return Unauthorized();
+            }
             return View(await _context.Users.ToListAsync());
         }
 
@@ -181,7 +187,132 @@ namespace WebApplication6.Controllers
             return View(user);
         }
 
+        public async Task<IActionResult> DiscussionForums()
+        {
+            var forums = await _context.DiscussionForums
+                .OrderByDescending(f => f.LastActive)
+                .ToListAsync();
 
+            return View("DiscussionForums", forums);
+        }
+
+        // GET: Users/DiscussionForums/Details/5
+        public async Task<IActionResult> DiscussionForumDetails(int id)
+        {
+            var forum = await _context.DiscussionForums
+                .Include(f => f.LearnerDiscussions)
+                    .ThenInclude(ld => ld.Learner)
+                .FirstOrDefaultAsync(f => f.ForumId == id);
+
+            if (forum == null)
+            {
+                return NotFound();
+            }
+
+            return View("DiscussionForumDetails", forum);
+        }
+
+        // GET: Users/DiscussionForums/Create
+        [HttpGet]
+        public IActionResult CreateDiscussionForum()
+        {
+            if (!User.IsInRole("Admin") && !User.IsInRole("Instructor"))
+            {
+                return Forbid();
+            }
+
+            return View("CreateDiscussionForum");
+        }
+
+        // POST: Users/DiscussionForums/Create
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> CreateDiscussionForum(DiscussionForum forum)
+        {
+            if (!ModelState.IsValid)
+            {
+                return View("CreateDiscussionForum", forum);
+            }
+
+            forum.Timestamp = DateTime.UtcNow;
+            forum.LastActive = DateTime.UtcNow;
+
+            _context.Add(forum);
+            await _context.SaveChangesAsync();
+
+            return RedirectToAction(nameof(DiscussionForums));
+        }
+
+        public async Task<IActionResult> AddPost(int forumId, string postContent)
+{
+    var logMessages = new List<string>();
+
+    try
+    {
+        // Get the logged-in user's ID
+        var currentUserId = int.Parse(User.FindFirst("Id")?.Value ?? "0");
+        logMessages.Add($"Current User ID: {currentUserId}");
+
+        // Validate user and retrieve learner details
+        var user = await _context.Users.Include(u => u.Learner).FirstOrDefaultAsync(u => u.Id == currentUserId);
+
+        if (user?.Learner == null)
+        {
+            logMessages.Add("Invalid user or learner details.");
+            TempData["DebugLogs"] = string.Join("\n", logMessages);
+            TempData["Error"] = "Invalid learner details. Please log in.";
+            return RedirectToAction("DiscussionForumDetails", new { id = forumId });
+        }
+
+        var learnerId = user.Learner.LearnerId;
+        logMessages.Add($"Retrieved Learner ID: {learnerId}");
+
+        // Validate the forum existence
+        var forum = await _context.DiscussionForums.FirstOrDefaultAsync(f => f.ForumId == forumId);
+        if (forum == null)
+        {
+            logMessages.Add($"Forum with ID {forumId} does not exist.");
+            TempData["DebugLogs"] = string.Join("\n", logMessages);
+            TempData["Error"] = "The discussion forum does not exist.";
+            return RedirectToAction("DiscussionForums");
+        }
+
+        logMessages.Add($"Forum found: {forum.Title}");
+
+        // Create a new post for the learner
+        var learnerDiscussion = new LearnerDiscussion
+        {
+            ForumId = forumId,
+            LearnerId = learnerId,
+            Post = postContent,
+            Time = DateTime.Now
+        };
+        logMessages.Add("Creating new discussion post...");
+
+        // Add the post to the database
+        _context.LearnerDiscussions.Add(learnerDiscussion);
+        await _context.SaveChangesAsync();
+        logMessages.Add("Post added successfully.");
+
+        // Update the forum's last active timestamp
+        forum.LastActive = DateTime.Now;
+        _context.DiscussionForums.Update(forum);
+        await _context.SaveChangesAsync();
+        logMessages.Add("Forum last active timestamp updated.");
+
+        TempData["Success"] = "Your post has been added successfully.";
+    }
+    catch (Exception ex)
+    {
+        logMessages.Add($"Error: {ex.Message}");
+        TempData["Error"] = $"An error occurred while adding the post: {ex.Message}";
+    }
+
+    // Save logs to TempData for debugging
+    TempData["DebugLogs"] = string.Join("\n", logMessages);
+
+    return RedirectToAction("DiscussionForumDetails", new { id = forumId });
+}
 
 
 
