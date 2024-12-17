@@ -9,7 +9,7 @@
 <p>
     @if (User.IsInRole("Instructor") || User.IsInRole("Admin"))
     {
-        <a class="btn btn-primary" asp-action="Create">Create New Achievement</a>
+        <a class="btn btn-outline-primary" asp-action="Create">Create New Achievement</a>
     }
 </p>
 
@@ -39,9 +39,9 @@
                     @if (User.IsInRole("Instructor") || User.IsInRole("Admin"))
                     {
                         <div class="d-flex justify-content-between gap-2">
-                            <a class="btn btn-warning btn-sm" asp-action="Edit" asp-route-id="@item.AchievementId">Edit</a>
-                            <a class="btn btn-info btn-sm" asp-action="Details" asp-route-id="@item.AchievementId">Details</a>
-                            <a class="btn btn-danger btn-sm" asp-action="Delete" asp-route-id="@item.AchievementId" onclick="return confirm('Are you sure you want to delete this achievement?')">Delete</a>
+                            <a class="btn btn-outline-warning btn-sm" asp-action="Edit" asp-route-id="@item.AchievementId">Edit</a>
+                            <a class="btn btn-outline-info btn-sm" asp-action="Details" asp-route-id="@item.AchievementId">Details</a>
+                            <a class="btn btn-outline-danger btn-sm" asp-action="Delete" asp-route-id="@item.AchievementId" onclick="return confirm('Are you sure you want to delete this achievement?')">Delete</a>
                         </div>
                     }
                 </div>

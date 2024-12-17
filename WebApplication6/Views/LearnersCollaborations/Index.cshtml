@@ -10,7 +10,7 @@
 <div class="mb-4">
     <form asp-action="QuestMembers" asp-route-learnerId="@Model.FirstOrDefault()?.LearnerId"
           asp-route-questId="@Model.FirstOrDefault()?.QuestId" method="post" style="display:inline;">
-        <button type="submit" class="btn btn-primary btn-sm">Quest Members</button>
+        <button type="submit" class="btn btn-outline-primary btn-sm">Quest Members</button>
     </form>
 </div>
 
@@ -30,7 +30,7 @@
                     <p class="card-text"><strong>Deadline:</strong> @item.Collaborative?.Deadline?.ToString("yyyy-MM-dd HH:mm")</p>
                     <div class="mt-auto d-flex gap-2">
                         <form asp-action="Delete" asp-route-learnerId="@item.LearnerId" asp-route-questId="@item.QuestId" method="post" style="display:inline;">
-                            <button type="submit" class="btn btn-danger btn-sm">Leave</button>
+                            <button type="submit" class="btn btn-outline-danger btn-sm">Leave</button>
                         </form>
 
                     </div>
