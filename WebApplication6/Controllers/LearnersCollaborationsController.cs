@@ -252,7 +252,7 @@ namespace WebApplication6.Controllers
                 await _context.SaveChangesAsync();
             }
 
-            // Redirect back to the index after deletion
+            TempData["SuccessMessage"] = "Left quest successfully!";
             return RedirectToAction("Index");
         }
 

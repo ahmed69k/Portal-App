@@ -253,7 +253,7 @@ namespace WebApplication6.Controllers
                 QuestId = quest.QuestId // Use QuestID
             };
 
-            // Add the collaboration record to the database
+            TempData["SuccessMessage"] = "Joined quest successfully!";
             _context.LearnersCollaborations.Add(collaboration);
             await _context.SaveChangesAsync();
 
