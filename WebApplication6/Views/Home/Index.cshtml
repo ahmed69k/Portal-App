@@ -2,13 +2,36 @@
     ViewData["Title"] = "Home Page";
 }
 
-<div class="text-center">
+<div class="text-center" style="margin-top: 20%;">
     <h1 class="display-4">Hello<strong> @User.Identity.Name</strong> </h1>
+    @if (User.IsInRole("Learner"))
+        {
+            <p class="mt-4">
+                The Portal/CMS can be used to navigate all your university needs. You can check your grades, courses, and quests!
+                If you have any questions or are in need of any support, contact us at:
+                <a href="mailto:admin@giu-uni.de">admin@giu-uni.de</a>.
+            </p>
+        }
+    @if (User.IsInRole("Instructor") || User.IsInRole("Admin"))
+    {
+
+        <p class="mt-4">
+            Hello faculty member! Here you can manage student's information, grades and add things like assessments!
+            If you have any questions or are in need of any support, contact us at:
+            <a href="mailto:admin@giu-uni.de">admin@giu-uni.de</a>.
+        </p>
+
+    }
 </div>
 
 @if (User.Identity.IsAuthenticated)
 {
-    <p class="mt-5">
-        <a asp-controller="Quests" asp-action="Index" class="btn btn-outline-primary btn-lg">Quests</a>
-    </p>
+    <div class="d-flex justify-content-center mt-5">
+        <a asp-controller="Quests" asp-action="Index" class="btn btn-outline-primary btn-lg mx-2">Quests</a>
+        <a asp-controller="Assessments" asp-action="Index" class="btn btn-outline-success btn-lg mx-2">Assessments</a>
+        <a asp-controller="Courses" asp-action="Index" class="btn btn-outline-info btn-lg mx-2">Courses</a>
+        <a asp-controller="Notifications" asp-action="Index" class="btn btn-outline-warning btn-lg mx-2">Notifications</a>
+    </div>
 }
+
+
