@@ -20,4 +20,5 @@ public partial class CourseEnrollment
     public virtual Course? Course { get; set; }
 
     public virtual Learner? Learner { get; set; }
+    public User User { get; set; }
 }

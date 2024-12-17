@@ -57,3 +57,59 @@
 }
     </tbody>
 </table>
+
+@{
+    ViewData["Title"] = "Courses";
+}
+
+<h1>All Courses</h1>
+
+@if (Model.Any())
+{
+    <ul>
+        @foreach (var course in Model)
+        {
+            <li>
+                <h3>@course.Title</h3>
+                <p>@course.Description</p>
+                <!-- Link to ViewModules action -->
+                <a asp-controller="Course" asp-action="ViewModules" asp-route-courseId="@course.CourseId">
+                    View Modules
+                </a>
+            </li>
+        }
+    </ul>
+}
+else
+{
+    <p>No courses available.</p>
+}
+
+@{
+    ViewData["Title"] = "My Enrolled Courses";
+}
+
+<h1>My Enrolled Courses</h1>
+
+@if (Model.Any())
+{
+    <ul>
+        @foreach (var course in Model)
+        {
+            <li>
+                <h3>@course.Title</h3>
+                <p>@course.Description</p>
+                <a asp-controller="Course" asp-action="ViewModules" asp-route-courseId="@course.CourseId">
+                    View Modules
+                </a>
+            </li>
+        }
+    </ul>
+}
+else
+{
+    <p>You are not enrolled in any courses yet.</p>
+}
+
+
+

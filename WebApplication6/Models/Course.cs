@@ -28,4 +28,6 @@ public partial class Course
     public virtual ICollection<Instructor> Instructors { get; set; } = new List<Instructor>();
 
     public virtual ICollection<Course> Prereqs { get; set; } = new List<Course>();
+
+
 }

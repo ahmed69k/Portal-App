@@ -42,6 +42,44 @@ namespace WebApplication6.Controllers
             return View(course);
         }
 
+        public class ModulesController : Controller
+        {
+            private readonly Fm2Context _context;
+
+            public ModulesController(Fm2Context context)
+            {
+                _context = context;
+            }
+
+            // GET: Modules/ByCourse/5
+            public async Task<IActionResult> ByCourse(int? courseId)
+            {
+                if (courseId == null)
+                {
+                    return NotFound("Course ID is required.");
+                }
+
+                // Fetch modules linked to the specified CourseId
+                var modules = await _context.Modules
+                    .Include(m => m.Course)
+                    .Where(m => m.CourseId == courseId)
+                    .ToListAsync();
+
+                if (modules == null || !modules.Any())
+                {
+                    ViewBag.Message = "No modules found for the selected course.";
+                    return View(new List<Module>());
+                }
+
+                ViewBag.CourseTitle = modules.FirstOrDefault()?.Course?.Title ?? "Selected Course";
+                return View(modules);
+            }
+        
+        }
+
+
+
+
         // GET: Courses/Create
         public IActionResult Create()
         {
