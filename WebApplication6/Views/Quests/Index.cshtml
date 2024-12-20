@@ -8,7 +8,7 @@
 @if (User.IsInRole("Admin") || User.IsInRole("Instructor"))
 {
     <p>
-        <a asp-action="Create" class="btn btn-outline-success btn-sm">Create New</a>
+    <a asp-action="Create" class="btn btn-success btn-sm">Create New</a>
 </p>}
 @if (TempData["SuccessMessage"] != null)
 {
@@ -31,15 +31,15 @@
                     <p class="card-text"><strong>Quest ID:</strong> @item.QuestId</p>
                     <p class="card-text"><strong>Deadline:</strong> @item.Collaborative?.Deadline</p>
                     <div class="mt-auto d-flex gap-2">
-                        <a asp-action="Details" asp-route-id="@item.QuestId" class="btn btn-outline-primary btn-sm">Details</a>
+                        <a asp-action="Details" asp-route-id="@item.QuestId" class="btn btn-primary btn-sm">Details</a>
 
                         @if (User.IsInRole("Instructor"))
                         {
-                            <a class="btn btn-outline-warning btn-sm">Edit</a>
+                            <a class="btn btn-warning btn-sm">Edit</a>
                             @if (item.Collaborative?.Deadline == null)
                             {
                                 <form asp-action="SetDeadline" asp-controller="Collaboratives" asp-route-questId="@item.QuestId" method="post" style="display:inline;">
-                                    <button type="submit" class="btn btn-outline-info btn-sm">Set Deadline</button>
+                                    <button type="submit" class="btn btn-info btn-sm">Set Deadline</button>
                                 </form>
                             }
 
@@ -50,7 +50,7 @@
 
                         @if (User.IsInRole("Admin") || User.IsInRole("Instructor"))
                         {
-                            <a asp-action="Delete" asp-route-id="@item.QuestId" class="btn btn-outline-danger btn-sm">Delete</a>
+                            <a asp-action="Delete" asp-route-id="@item.QuestId" class="btn btn-danger btn-sm">Delete</a>
                         }
 
                         @if (User.IsInRole("Learner"))
@@ -58,7 +58,7 @@
                             
 
                             <form asp-action="Join" asp-route-id="@item.QuestId" method="post" style="display:inline;">
-                                <button type="submit" class="btn btn-outline-primary btn-sm">Join</button>
+                                <button type="submit" class="btn btn-primary btn-sm">Join</button>
                             </form>
 
 
