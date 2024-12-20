@@ -10,12 +10,6 @@
     <p>
         <a asp-action="Create" class="btn btn-outline-success btn-sm">Create New</a>
 </p>}
-@if (TempData["SuccessMessage"] != null)
-{
-    <div class="alert alert-success text-center">
-        @TempData["SuccessMessage"]
-    </div>
-}
 
 <div class="row row-cols-1 row-cols-md-3 g-4">
     @foreach (var item in Model)
@@ -55,18 +49,13 @@
 
                         @if (User.IsInRole("Learner"))
                         {
-                            
-
                             <form asp-action="Join" asp-route-id="@item.QuestId" method="post" style="display:inline;">
                                 <button type="submit" class="btn btn-outline-primary btn-sm">Join</button>
                             </form>
-
-
                         }
                     </div>
                 </div>
             </div>
         </div>
     }
-
 </div>

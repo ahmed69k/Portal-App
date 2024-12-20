@@ -5,12 +5,7 @@
 }
 
 <h1>My Quests</h1>
-@if (TempData["SuccessMessage"] != null)
-{
-    <div class="alert alert-danger text-center">
-        @TempData["SuccessMessage"]
-    </div>
-}
+
 <!-- Display the Quest Members button once under the title -->
 <div class="mb-4">
     <form asp-action="QuestMembers" asp-route-learnerId="@Model.FirstOrDefault()?.LearnerId"
@@ -18,8 +13,6 @@
         <button type="submit" class="btn btn-outline-primary btn-sm">Quest Members</button>
     </form>
 </div>
-
-
 
 <div class="row row-cols-1 row-cols-md-3 g-4">
     @foreach (var item in Model)
