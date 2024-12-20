@@ -44,7 +44,7 @@
 </div>
 
 <!-- Button to show modules in a collapsible section -->
-<button id="modulesBtn" class="btn btn-primary" onclick="toggleModules()">View Modules</button>
+<button id="modulesBtn" class="btn btn-outline-primary btn-sm" onclick="toggleModules()">View Modules</button>
 
 <!-- Hidden modules section -->
 <div id="courseModules" style="display:none; margin-top: 10px;">
@@ -80,6 +80,13 @@
 </script>
 
 <div>
-    <a asp-action="Edit" asp-route-id="@Model?.CourseId">Edit</a> |
-    <a asp-action="Index">Back to List</a>
+    <a asp-action="Edit" asp-route-id="@Model?.CourseId" class="btn btn-outline-warning btn-sm">Edit</a> |
+    <a asp-action="Index" class="btn btn-outline-info btn-sm">Back to List</a>
 </div>
+
+@if (TempData["Message"] != null)
+{
+    <div class="alert alert-info">
+        @TempData["Message"]
+    </div>
+}

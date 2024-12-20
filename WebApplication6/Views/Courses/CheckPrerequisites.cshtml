@@ -1,0 +1,25 @@
+﻿@model WebApplication6.Models.Course
+
+@{
+    ViewData["Title"] = "Check Prerequisites";
+}
+
+<h1>Check Prerequisites for @Model.Title</h1>
+
+@if ((bool)ViewBag.PrerequisitesCompleted)
+{
+    <p class="text-success">You have completed all prerequisites for this course. You can enroll now!</p>
+}
+else
+{
+    <p class="text-danger">You have not completed all prerequisites for this course. Please complete the following courses first:</p>
+    <ul>
+        @foreach (var prereq in Model.Prereqs)
+        {
+            <li>@prereq.Title</li>
+        }
+    </ul>
+}
+
+<!-- Back to Courses Button -->
+<a href="@Url.Action("Index", "Courses")" class="btn btn-outline-primary btn-sm">Back to Courses</a>

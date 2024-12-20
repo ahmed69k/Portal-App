@@ -6,6 +6,7 @@ namespace WebApplication6.Models;
 public partial class CourseEnrollment
 {
     public int EnrollmentId { get; set; }
+
     public int? CourseId { get; set; }
 
     public int? LearnerId { get; set; }
