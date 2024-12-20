@@ -1,0 +1,39 @@
+﻿@model IEnumerable<WebApplication6.Models.Course>
+
+<h2>My Courses</h2>
+
+@if (!Model.Any())
+{
+    <p>You are not enrolled in any courses.</p>
+}
+else
+{
+    <div class="list-group">
+        @foreach (var course in Model)
+        {
+            <a href="@Url.Action("Details", "Courses", new { id = course.CourseId })" class="list-group-item list-group-item-action">
+                <h5>@course.Title</h5>
+                <p>@course.Description</p>
+                <small>Instructor: @course | Credits: @course.CreditPoints</small>
+            </a>
+        }
+    </div>
+}
+@{
+    ViewData["Title"] = "My Courses";
+}
+
+<div class="container mt-4">
+    <h1>My Courses</h1>
+
+    <!-- Add Button to View Previous Courses -->
+    <div class="my-4">
+        <a class="btn btn-primary" href="@Url.Action("PreviousCourses", "Courses")">View Previously Taken Courses</a>
+    </div>
+
+    <!-- List of Current Courses (Assuming you have this already) -->
+    <div>
+        <!-- Display current courses here -->
+    </div>
+</div>
+

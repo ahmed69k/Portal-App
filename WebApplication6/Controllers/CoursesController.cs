@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using WebApplication6.Models;
 
@@ -32,8 +31,11 @@ namespace WebApplication6.Controllers
                 return NotFound();
             }
 
+            // Include the related Modules when fetching the course
             var course = await _context.Courses
+                .Include(c => c.Modules) // Eager loading Modules
                 .FirstOrDefaultAsync(m => m.CourseId == id);
+
             if (course == null)
             {
                 return NotFound();
@@ -41,44 +43,13 @@ namespace WebApplication6.Controllers
 
             return View(course);
         }
-
-        public class ModulesController : Controller
+        // Add this action in the CoursesController
+        public async Task<IActionResult> MyCourses()
         {
-            private readonly Fm2Context _context;
-
-            public ModulesController(Fm2Context context)
-            {
-                _context = context;
-            }
-
-            // GET: Modules/ByCourse/5
-            public async Task<IActionResult> ByCourse(int? courseId)
-            {
-                if (courseId == null)
-                {
-                    return NotFound("Course ID is required.");
-                }
-
-                // Fetch modules linked to the specified CourseId
-                var modules = await _context.Modules
-                    .Include(m => m.Course)
-                    .Where(m => m.CourseId == courseId)
-                    .ToListAsync();
-
-                if (modules == null || !modules.Any())
-                {
-                    ViewBag.Message = "No modules found for the selected course.";
-                    return View(new List<Module>());
-                }
-
-                ViewBag.CourseTitle = modules.FirstOrDefault()?.Course?.Title ?? "Selected Course";
-                return View(modules);
-            }
-        
+            var courses = await _context.Courses.ToListAsync();
+            return View(courses);
         }
-
-
-
+        
 
         // GET: Courses/Create
         public IActionResult Create()
@@ -87,8 +58,6 @@ namespace WebApplication6.Controllers
         }
 
         // POST: Courses/Create
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("CourseId,Title,LearningObjective,CreditPoints,DifficultyLevel,Description")] Course course)
@@ -119,8 +88,6 @@ namespace WebApplication6.Controllers
         }
 
         // POST: Courses/Edit/5
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id, [Bind("CourseId,Title,LearningObjective,CreditPoints,DifficultyLevel,Description")] Course course)
@@ -171,6 +138,7 @@ namespace WebApplication6.Controllers
             return View(course);
         }
 
+
         // POST: Courses/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
@@ -189,6 +157,54 @@ namespace WebApplication6.Controllers
         private bool CourseExists(int id)
         {
             return _context.Courses.Any(e => e.CourseId == id);
+        }
+        public async Task<IActionResult> PreviousCourses()
+        {
+            var userId = 1; // Replace this with the logged-in user's ID
+            var enrollments = await _context.CourseEnrollments
+            .Include(e => e.User)  // Include the User navigation property
+            .Include(e => e.Course)  // Include the Course navigation property
+            .ToListAsync();
+
+
+            return View(enrollments);
+        }
+
+
+        // ModulesController nested inside CoursesController
+
+        public class ModulesController : Controller
+        {
+            private readonly Fm2Context _context;
+
+            public ModulesController(Fm2Context context)
+            {
+                _context = context;
+            }
+
+            // GET: Modules/ByCourse/5
+            public async Task<IActionResult> ByCourse(int? courseId)
+            {
+                if (courseId == null)
+                {
+                    return NotFound("Course ID is required.");
+                }
+
+                // Fetch modules linked to the specified CourseId
+                var modules = await _context.Modules
+                    .Include(m => m.Course)
+                    .Where(m => m.CourseId == courseId)
+                    .ToListAsync();
+
+                if (modules == null || !modules.Any())
+                {
+                    ViewBag.Message = "No modules found for the selected course.";
+                    return View(new List<Module>());
+                }
+
+                ViewBag.CourseTitle = modules.FirstOrDefault()?.Course?.Title ?? "Selected Course";
+                return View(modules);
+            }
         }
     }
 }

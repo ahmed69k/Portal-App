@@ -10,38 +10,75 @@
     <h4>Course</h4>
     <hr />
     <dl class="row">
-        <dt class = "col-sm-2">
+        <dt class="col-sm-2">
             @Html.DisplayNameFor(model => model.Title)
         </dt>
-        <dd class = "col-sm-10">
+        <dd class="col-sm-10">
             @Html.DisplayFor(model => model.Title)
         </dd>
-        <dt class = "col-sm-2">
+        <dt class="col-sm-2">
             @Html.DisplayNameFor(model => model.LearningObjective)
         </dt>
-        <dd class = "col-sm-10">
+        <dd class="col-sm-10">
             @Html.DisplayFor(model => model.LearningObjective)
         </dd>
-        <dt class = "col-sm-2">
+        <dt class="col-sm-2">
             @Html.DisplayNameFor(model => model.CreditPoints)
         </dt>
-        <dd class = "col-sm-10">
+        <dd class="col-sm-10">
             @Html.DisplayFor(model => model.CreditPoints)
         </dd>
-        <dt class = "col-sm-2">
+        <dt class="col-sm-2">
             @Html.DisplayNameFor(model => model.DifficultyLevel)
         </dt>
-        <dd class = "col-sm-10">
+        <dd class="col-sm-10">
             @Html.DisplayFor(model => model.DifficultyLevel)
         </dd>
-        <dt class = "col-sm-2">
+        <dt class="col-sm-2">
             @Html.DisplayNameFor(model => model.Description)
         </dt>
-        <dd class = "col-sm-10">
+        <dd class="col-sm-10">
             @Html.DisplayFor(model => model.Description)
         </dd>
     </dl>
 </div>
+
+<!-- Button to show modules in a collapsible section -->
+<button id="modulesBtn" class="btn btn-primary" onclick="toggleModules()">View Modules</button>
+
+<!-- Hidden modules section -->
+<div id="courseModules" style="display:none; margin-top: 10px;">
+    <h4>Modules</h4>
+    <!-- Display modules related to the course if there are any -->
+    @if (Model.Modules != null && Model.Modules.Any())
+    {
+        foreach (var module in Model.Modules)
+        {
+            <p>@module.Title</p>
+        }
+    }
+    else
+    {
+        <p>No modules available for this course.</p>
+    }
+</div>
+
+<!-- Add a JavaScript function to toggle the visibility of the modules -->
+<script type="text/javascript">
+    function toggleModules() {
+        var modules = document.getElementById("courseModules");
+        var btn = document.getElementById("modulesBtn");
+
+        if (modules.style.display === "none") {
+            modules.style.display = "block";
+            btn.innerText = "Hide Modules";
+        } else {
+            modules.style.display = "none";
+            btn.innerText = "View Modules";
+        }
+    }
+</script>
+
 <div>
     <a asp-action="Edit" asp-route-id="@Model?.CourseId">Edit</a> |
     <a asp-action="Index">Back to List</a>
