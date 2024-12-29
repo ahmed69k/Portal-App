@@ -26,12 +26,18 @@
 
 @if (User.Identity.IsAuthenticated)
 {
+<<<<<<< HEAD
     <div class="d-flex justify-content-center mt-5">
         <a asp-controller="Quests" asp-action="Index" class="btn btn-outline-primary btn-lg mx-2">Quests</a>
         <a asp-controller="Assessments" asp-action="Index" class="btn btn-outline-success btn-lg mx-2">Assessments</a>
         <a asp-controller="Courses" asp-action="Index" class="btn btn-outline-info btn-lg mx-2">Courses</a>
         <a asp-controller="Notifications" asp-action="Index" class="btn btn-outline-warning btn-lg mx-2">Notifications</a>
     </div>
+=======
+    <p class="mt-5">
+        <a asp-controller="Quests" asp-action="Index" class="btn btn-primary btn-lg">Quests</a>
+    </p>
+>>>>>>> parent of 50384c3 (Changed buttons to outline.)
 }
 
 

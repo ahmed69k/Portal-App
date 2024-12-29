@@ -27,7 +27,7 @@
                     @if (User.Identity.IsAuthenticated && User.Identity.Name == user.Email)
                     {
                         <form asp-action="Delete" asp-route-id="@user.Id" method="post" style="display:inline;">
-                            <button type="submit" class="btn btn-outline-danger btn-sm">Delete My Account</button>
+                            <button type="submit" class="btn btn-danger btn-sm">Delete My Account</button>
                         </form>
                     }
 
@@ -35,7 +35,7 @@
                     @if (User.IsInRole("Admin") && user.Role == "Learner")
                     {
                         <form asp-action="Delete" asp-route-id="@user.Id" method="post" style="display:inline;">
-                            <button type="submit" class="btn btn-outline-danger btn-sm">Delete</button>
+                            <button type="submit" class="btn btn-danger btn-sm">Delete</button>
                         </form>
                     }
                 </td>
